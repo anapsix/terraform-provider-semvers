@@ -28,7 +28,7 @@ func New(version string) func() provider.Provider {
 }
 
 type semversProvider struct {
-    version string
+	version string
 }
 
 func (p *semversProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {

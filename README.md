@@ -15,6 +15,12 @@ go install
 # run acceptance testing
 TF_ACC=1 go test -v ./...
 
+# check and fix formatting
+go fmt ./...
+
+# update go modules
+go get -u
+
 # generate docs
 go generate ./...
 ```
