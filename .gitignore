@@ -1,8 +1,7 @@
 **/.DS_Store
 **/.terraform.lock.hcl
+**/.terraform
 **/terraform.tfplan
 **/terraform.tfstate
 **/terraform.tfstate.backup
-
-
 dist/
