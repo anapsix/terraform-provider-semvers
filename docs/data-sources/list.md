@@ -3,12 +3,12 @@
 page_title: "semvers_list Data Source - semvers"
 subcategory: ""
 description: |-
-  
+  Parses and sorts a list of semver strings.
 ---
 
 # semvers_list (Data Source)
 
-
+Parses and sorts a list of semver strings.
 
 ## Example Usage
 
@@ -25,7 +25,7 @@ data "semvers_list" "example" {
     "2.0.0",
     "2.0.0-rc1",
     "2.0.1-rc1",
-    "0.1",
+    "v0.1",
     "5.0.1-rc1+dead"
   ]
 }
@@ -36,25 +36,26 @@ data "semvers_list" "example" {
 
 ### Required
 
-- `list` (List of String)
+- `list` (List of String) Original list of semver strings.
 
 ### Read-Only
 
-- `first` (Attributes) (see [below for nested schema](#nestedatt--first))
-- `last` (Attributes) (see [below for nested schema](#nestedatt--last))
-- `sorted_versions` (Attributes List) (see [below for nested schema](#nestedatt--sorted_versions))
+- `first` (Attributes) The first / lowest version object in the list. (see [below for nested schema](#nestedatt--first))
+- `last` (Attributes) The last / highest version object in the list. (see [below for nested schema](#nestedatt--last))
+- `sorted_versions` (Attributes List) A semver sorted list of version objects. (see [below for nested schema](#nestedatt--sorted_versions))
 
 <a id="nestedatt--first"></a>
 ### Nested Schema for `first`
 
 Read-Only:
 
-- `major` (Number)
-- `metadata` (String)
-- `minor` (Number)
-- `patch` (Number)
-- `prerelease` (String)
-- `version` (String)
+- `major` (Number) Major version.
+- `metadata` (String) Metadata of the version.
+- `minor` (Number) Minor version.
+- `original` (String) Original version string.
+- `patch` (Number) Patch version.
+- `prerelease` (String) Pre-release version identifier.
+- `version` (String) Parsed version string.
 
 
 <a id="nestedatt--last"></a>
@@ -62,12 +63,13 @@ Read-Only:
 
 Read-Only:
 
-- `major` (Number)
-- `metadata` (String)
-- `minor` (Number)
-- `patch` (Number)
-- `prerelease` (String)
-- `version` (String)
+- `major` (Number) Major version.
+- `metadata` (String) Metadata of the version.
+- `minor` (Number) Minor version.
+- `original` (String) Original version string.
+- `patch` (Number) Patch version.
+- `prerelease` (String) Pre-release version identifier.
+- `version` (String) Parsed version string.
 
 
 <a id="nestedatt--sorted_versions"></a>
@@ -75,9 +77,10 @@ Read-Only:
 
 Read-Only:
 
-- `major` (Number)
-- `metadata` (String)
-- `minor` (Number)
-- `patch` (Number)
-- `prerelease` (String)
-- `version` (String)
+- `major` (Number) Major version.
+- `metadata` (String) Metadata of the version.
+- `minor` (Number) Minor version.
+- `original` (String) Original version string.
+- `patch` (Number) Patch version.
+- `prerelease` (String) Pre-release version identifier.
+- `version` (String) Parsed version string.

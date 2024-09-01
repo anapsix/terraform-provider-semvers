@@ -19,23 +19,33 @@ import (
 type semversListDataSource struct{}
 
 var versionAttributes = map[string]schema.Attribute{
+	"original": schema.StringAttribute{
+		Description: "Original version string.",
+		Computed:    true,
+	},
 	"version": schema.StringAttribute{
-		Computed: true,
+		Description: "Parsed version string.",
+		Computed:    true,
 	},
 	"major": schema.Int64Attribute{
-		Computed: true,
+		Description: "Major version.",
+		Computed:    true,
 	},
 	"minor": schema.Int64Attribute{
-		Computed: true,
+		Description: "Minor version.",
+		Computed:    true,
 	},
 	"patch": schema.Int64Attribute{
-		Computed: true,
+		Description: "Patch version.",
+		Computed:    true,
 	},
 	"prerelease": schema.StringAttribute{
-		Computed: true,
+		Description: "Pre-release version identifier.",
+		Computed:    true,
 	},
 	"metadata": schema.StringAttribute{
-		Computed: true,
+		Description: "Metadata of the version.",
+		Computed:    true,
 	},
 }
 
@@ -45,20 +55,25 @@ func (d *semversListDataSource) Metadata(ctx context.Context, req datasource.Met
 
 func (d *semversListDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "Parses and sorts a list of semver strings.",
 		Attributes: map[string]schema.Attribute{
 			"list": schema.ListAttribute{
+				Description: "Original list of semver strings.",
 				ElementType: types.StringType,
 				Required:    true,
 			},
 			"first": schema.SingleNestedAttribute{
-				Computed:   true,
-				Attributes: versionAttributes,
+				Description: "The first / lowest version object in the list.",
+				Computed:    true,
+				Attributes:  versionAttributes,
 			},
 			"last": schema.SingleNestedAttribute{
-				Computed:   true,
-				Attributes: versionAttributes,
+				Description: "The last / highest version object in the list.",
+				Computed:    true,
+				Attributes:  versionAttributes,
 			},
 			"sorted_versions": schema.ListNestedAttribute{
+				Description: "A semver sorted list of version objects.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: versionAttributes,
 				},
@@ -107,6 +122,7 @@ func (d *semversListDataSource) Read(ctx context.Context, req datasource.ReadReq
 	sortedSemvers := make([]map[string]interface{}, len(semvers))
 	for i, v := range semvers {
 		sortedSemvers[i] = map[string]interface{}{
+			"original":   v.Original(),
 			"version":    v.String(),
 			"major":      v.Major(),
 			"minor":      v.Minor(),
@@ -124,6 +140,7 @@ func (d *semversListDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	model.SortedVersions = types.ListValueMust(types.ObjectType{
 		AttrTypes: map[string]attr.Type{
+			"original":   types.StringType,
 			"version":    types.StringType,
 			"major":      types.Int64Type,
 			"minor":      types.Int64Type,
@@ -145,6 +162,7 @@ func convertToTerraformValueList(ctx context.Context, values []map[string]interf
 	for i, v := range values {
 		// Define the attribute types for the object
 		attrTypes := map[string]attr.Type{
+			"original":   types.StringType,
 			"version":    types.StringType,
 			"major":      types.Int64Type,
 			"minor":      types.Int64Type,

@@ -40,6 +40,7 @@ func (p *semversProvider) Metadata(ctx context.Context, req provider.MetadataReq
 func (p *semversProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "Use `github.com/Masterminds/semver/v3` to sort semver strings.",
+		Attributes:  nil,
 	}
 }
 

@@ -10,7 +10,7 @@ data "semvers_list" "example" {
     "2.0.0",
     "2.0.0-rc1",
     "2.0.1-rc1",
-    "0.1",
+    "v0.1",
     "5.0.1-rc1+dead"
   ]
 }
