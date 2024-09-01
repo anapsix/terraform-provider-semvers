@@ -2,6 +2,9 @@
 
 Implements a data-source `semvers_list` to make semver sorting easy in TF.
 
+See the [Terraform Registry provider page][1].
+
+[1]: https://registry.terraform.io/providers/anapsix/semvers
 
 ## Development
 
