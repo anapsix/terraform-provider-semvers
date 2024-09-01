@@ -3,12 +3,12 @@
 page_title: "semvers Provider"
 subcategory: ""
 description: |-
-  
+  Use github.com/Masterminds/semver/v3 to sort semver strings.
 ---
 
 # semvers Provider
 
-
+Use `github.com/Masterminds/semver/v3` to sort semver strings.
 
 ## Example Usage
 

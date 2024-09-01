@@ -8,7 +8,6 @@
 // can be customized.
 //go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate -provider-name semvers
 
-
 package main
 
 import (
@@ -38,7 +37,7 @@ func main() {
 
 	opts := providerserver.ServeOpts{
 		Address: "hashicorp.com/anapsix/semvers",
-		Debug: debug,
+		Debug:   debug,
 	}
 
 	err := providerserver.Serve(context.Background(), provider.New(version), opts)

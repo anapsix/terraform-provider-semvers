@@ -27,18 +27,20 @@ func New(version string) func() provider.Provider {
 	}
 }
 
-type semversProvider struct{
-	version string
+type semversProvider struct {
+    version string
 }
 
 func (p *semversProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "semvers"
-  resp.Version = p.version
+	resp.Version = p.version
 }
 
 // Schema defines the provider-level schema for configuration data.
 func (p *semversProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
-	resp.Schema = schema.Schema{}
+	resp.Schema = schema.Schema{
+		Description: "Use `github.com/Masterminds/semver/v3` to sort semver strings.",
+	}
 }
 
 func (p *semversProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
