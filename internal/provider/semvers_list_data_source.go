@@ -73,7 +73,7 @@ func (d *semversListDataSource) Schema(ctx context.Context, req datasource.Schem
 				Attributes:  versionAttributes,
 			},
 			"sorted_versions": schema.ListNestedAttribute{
-				Description: "A semver sorted list of version objects.",
+				Description: "A semver sorted list of version objects, without dups.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: versionAttributes,
 				},
@@ -116,11 +116,12 @@ func (d *semversListDataSource) Read(ctx context.Context, req datasource.ReadReq
 		}
 		semvers[i] = v
 	}
-	sort.Sort(semver.Collection(semvers))
+	semvers_uniq := removeDups(semvers)
+	sort.Sort(semver.Collection(semvers_uniq))
 
 	// Prepare the sorted list of semver strings
-	sortedSemvers := make([]map[string]interface{}, len(semvers))
-	for i, v := range semvers {
+	sortedSemvers := make([]map[string]interface{}, len(semvers_uniq))
+	for i, v := range semvers_uniq {
 		sortedSemvers[i] = map[string]interface{}{
 			"original":   v.Original(),
 			"version":    v.String(),
@@ -198,6 +199,21 @@ func convertTerraformListToStringSlice(list types.List) []string {
 	for i, v := range list.Elements() {
 		result[i] = v.(types.String).ValueString()
 	}
+	return result
+}
+
+func removeDups(list []*semver.Version) []*semver.Version {
+	seen := make(map[string]bool)
+	var result []*semver.Version
+
+	for _, v := range list {
+		versionStr := v.String()
+		if _, exists := seen[versionStr]; !exists {
+			seen[versionStr] = true
+			result = append(result, v)
+		}
+	}
+
 	return result
 }
 

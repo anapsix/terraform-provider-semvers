@@ -41,7 +41,7 @@ data "semvers_list" "example" {
 
 - `first` (Attributes) The first / lowest version object in the list. (see [below for nested schema](#nestedatt--first))
 - `last` (Attributes) The last / highest version object in the list. (see [below for nested schema](#nestedatt--last))
-- `sorted_versions` (Attributes List) A semver sorted list of version objects. (see [below for nested schema](#nestedatt--sorted_versions))
+- `sorted_versions` (Attributes List) A semver sorted list of version objects, without dups. (see [below for nested schema](#nestedatt--sorted_versions))
 
 <a id="nestedatt--first"></a>
 ### Nested Schema for `first`

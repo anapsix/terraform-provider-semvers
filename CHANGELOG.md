@@ -1,3 +1,8 @@
+## 0.2.1
+
+IMPROVEMENTS:
+- Add deduplication based on parsed semver version string
+
 ## 0.2.0
 
 IMPROVEMENTS:

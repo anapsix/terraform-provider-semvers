@@ -36,6 +36,14 @@ func TestAccDataSource(t *testing.T) {
 					statecheck.ExpectKnownValue("data.semvers_list.example", tfjsonpath.New("sorted_versions").AtSliceIndex(3).AtMapKey("metadata"), knownvalue.StringExact("")),
 				},
 			},
+			{
+				Config: `data "semvers_list" "dedup" {
+            list = ["1", "1.0", "1.0.0", "v1", "v1.0", "v1.0.0"]
+        }`,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue("data.semvers_list.dedup", tfjsonpath.New("sorted_versions"), knownvalue.ListSizeExact(1)),
+				},
+			},
 		},
 	})
 }
