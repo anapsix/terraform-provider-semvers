@@ -1,9 +1,8 @@
 data "semvers_list" "example" {
-  provider = semvers
   list = [
     "0.90.1",
     "0.9.0",
-    "0.80.0",
+    "0.80.0+af3bc",
     "0.91.0",
     "0.9.10",
     "1.0.1",
