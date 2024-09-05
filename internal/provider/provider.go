@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -15,7 +16,8 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ provider.Provider = &semversProvider{}
+	_ provider.Provider              = &semversProvider{}
+	_ provider.ProviderWithFunctions = &semversProvider{}
 )
 
 // New is a helper function to simplify provider server and testing implementation.
@@ -59,4 +61,10 @@ func (p *semversProvider) Resources(ctx context.Context) []func() resource.Resou
 
 func (p *semversProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
 	// No configuration necessary for this provider
+}
+
+func (p *semversProvider) Functions(_ context.Context) []func() function.Function {
+	return []func() function.Function{
+		NewSemversSortFunction,
+	}
 }

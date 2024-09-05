@@ -13,6 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+
+	"github.com/anapsix/terraform-provider-semvers/internal/helpers"
 )
 
 // Data Source definition
@@ -104,24 +106,19 @@ func (d *semversListDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	// Parse and sort the semver strings
 	semverStrings := convertTerraformListToStringSlice(model.List)
-	semvers := make([]*semver.Version, len(semverStrings))
-	for i, raw := range semverStrings {
-		v, err := semver.NewVersion(raw)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error parsing semver",
-				"Could not parse version: "+raw,
-			)
-			return
-		}
-		semvers[i] = v
+	semvers, err := shelper.StringsToSemvers(semverStrings)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error in shelper.StringsToSemvers() semver",
+			"Could not convert list of strings to list of semvers.",
+		)
+		return
 	}
-	semvers_uniq := removeDups(semvers)
-	sort.Sort(semver.Collection(semvers_uniq))
+	sort.Sort(semver.Collection(semvers))
 
 	// Prepare the sorted list of semver strings
-	sortedSemvers := make([]map[string]interface{}, len(semvers_uniq))
-	for i, v := range semvers_uniq {
+	sortedSemvers := make([]map[string]interface{}, len(semvers))
+	for i, v := range semvers {
 		sortedSemvers[i] = map[string]interface{}{
 			"original":   v.Original(),
 			"version":    v.String(),
@@ -199,21 +196,6 @@ func convertTerraformListToStringSlice(list types.List) []string {
 	for i, v := range list.Elements() {
 		result[i] = v.(types.String).ValueString()
 	}
-	return result
-}
-
-func removeDups(list []*semver.Version) []*semver.Version {
-	seen := make(map[string]bool)
-	var result []*semver.Version
-
-	for _, v := range list {
-		versionStr := v.String()
-		if _, exists := seen[versionStr]; !exists {
-			seen[versionStr] = true
-			result = append(result, v)
-		}
-	}
-
 	return result
 }
 

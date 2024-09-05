@@ -1,3 +1,10 @@
+### 0.3.0
+
+IMPROVEMENTS:
+- adding `provider::semvers::sort` function which takes list of semver strings,
+  and returns a list of semver strings, sorted and deduped
+
+
 ## 0.2.1
 
 IMPROVEMENTS:

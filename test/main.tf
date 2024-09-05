@@ -53,6 +53,13 @@ locals {
   local_last  = data.semvers_list.example.sorted_versions[local.version_count - 1]
 
   local_last_no_prerelease = [for v in reverse(data.semvers_list.example.sorted_versions) : v if v.prerelease == ""][0]
+
+  sorted_by_function = provider::semvers::sort(local.versions)
+
+}
+
+output "semvers_sorted_by_function" {
+  value = local.sorted_by_function
 }
 
 output "semvers_list_sorted_versions" {
