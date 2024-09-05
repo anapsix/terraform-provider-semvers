@@ -41,7 +41,7 @@ func (p *semversProvider) Metadata(ctx context.Context, req provider.MetadataReq
 // Schema defines the provider-level schema for configuration data.
 func (p *semversProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Use `github.com/Masterminds/semver/v3` to sort semver strings.",
+		Description: "Implements `semvers_list` data source and `sort` provider function, using `github.com/Masterminds/semver/v3`. Usage of `provider::semvers::sort([])` requires Terraform version 1.8 and above.",
 		Attributes:  nil,
 	}
 }

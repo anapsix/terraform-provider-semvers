@@ -29,7 +29,8 @@ func (r SemversSortFunction) Metadata(_ context.Context, req function.MetadataRe
 
 func (r SemversSortFunction) Definition(_ context.Context, _ function.DefinitionRequest, resp *function.DefinitionResponse) {
 	resp.Definition = function.Definition{
-		Summary: "Returns sorted list of semver strings",
+		Summary:             "Returns sorted list of semver strings",
+		MarkdownDescription: "Returns sorted and deduped list of semver strings",
 		Parameters: []function.Parameter{
 			function.ListParameter{
 				ElementType:         types.StringType,

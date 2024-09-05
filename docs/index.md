@@ -3,12 +3,12 @@
 page_title: "semvers Provider"
 subcategory: ""
 description: |-
-  Use github.com/Masterminds/semver/v3 to sort semver strings.
+  Implements semvers_list data source and sort provider function, using github.com/Masterminds/semver/v3. Usage of provider::semvers::sort([]) requires Terraform version 1.8 and above.
 ---
 
 # semvers Provider
 
-Use `github.com/Masterminds/semver/v3` to sort semver strings.
+Implements `semvers_list` data source and `sort` provider function, using `github.com/Masterminds/semver/v3`. Usage of `provider::semvers::sort([])` requires Terraform version 1.8 and above.
 
 ## Example Usage
 
