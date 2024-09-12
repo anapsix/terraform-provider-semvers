@@ -1,8 +1,9 @@
 package shelper
 
 import (
-	"github.com/Masterminds/semver/v3"
 	"sort"
+
+	"github.com/Masterminds/semver/v3"
 )
 
 // RemoveDups removes duplicate versions from a list of semver.Version pointers
@@ -53,4 +54,34 @@ func StringsToStrings(list []string) ([]string, error) {
 		return nil, err
 	}
 	return SemversToStrings(semvers), nil
+}
+
+func PickFromSemverStrings(list []string, contraint string) ([]string, error) {
+	var semvers_filtered []string
+	semvers_list, err := StringsToSemvers(list)
+	if err != nil {
+		return nil, err
+	}
+	semver_compare, err := semver.NewConstraint(contraint)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range semvers_list {
+		match := semver_compare.Check(v)
+		// match, msgs := semver_compare.Validate(v)
+		// for _, m := range msgs {
+		// 	fmt.Println(m)
+		// }
+		if match {
+			semvers_filtered = append(semvers_filtered, v.String())
+		}
+	}
+
+	if len(semvers_filtered) == 0 {
+		var empty_results []string
+		return empty_results, nil
+	}
+
+	return semvers_filtered, nil
 }

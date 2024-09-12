@@ -7,7 +7,7 @@ package provider
 import (
 	"context"
 
-	"github.com/anapsix/terraform-provider-semvers/internal/helpers"
+	shelper "github.com/anapsix/terraform-provider-semvers/internal/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"

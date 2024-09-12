@@ -1,3 +1,10 @@
+## 0.4.0
+
+### Added:
+- The  `provider::semvers::pick` function which takes list of semver strings,
+  and semver constraint, and returns a list of filtered semver strings, sorted and deduped,
+  matching the constraint. See [Masterminds/semver](https://github.com/Masterminds/semver/tree/master?tab=readme-ov-file#checking-version-constraints) for constraint syntax.
+
 ## 0.3.1
 
 ### Fixed
@@ -11,7 +18,6 @@
 ### Added:
 - The  `provider::semvers::sort` function which takes list of semver strings,
   and returns a list of semver strings, sorted and deduped
-
 
 ## 0.2.1
 

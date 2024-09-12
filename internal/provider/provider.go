@@ -66,5 +66,6 @@ func (p *semversProvider) Configure(ctx context.Context, req provider.ConfigureR
 func (p *semversProvider) Functions(_ context.Context) []func() function.Function {
 	return []func() function.Function{
 		NewSemversSortFunction,
+		NewSemversPickFunction,
 	}
 }

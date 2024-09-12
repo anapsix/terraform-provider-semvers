@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 )
 
-func TestSemversSortFunction_Known(t *testing.T) {
+func TestSemversPickFunction_Known(t *testing.T) {
 	resource.UnitTest(t, resource.TestCase{
 		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
 			tfversion.SkipBelow(tfversion.Version1_8_0),
@@ -22,54 +22,55 @@ func TestSemversSortFunction_Known(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: `
-        locals {
-          list = ["0.1.1-rc1+a231f59", "0.1.1", "0.1.10", "0.1.2-rc1"]
-        }
-        output "semvers_sorted" {
-          value = provider::semvers::sort(local.list)
+        output "semvers_filtered" {
+          value = provider::semvers::pick(
+						["0.1.1-rc1+a231f59", "0.1.1", "0.1.10", "0.1.2-rc1", "0.2.1"],
+						"~> 0.2"
+					)
         }
         `,
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownOutputValue(
-						"semvers_sorted",
+						"semvers_filtered",
 						knownvalue.ListExact([]knownvalue.Check{
-							knownvalue.StringExact("0.1.1-rc1+a231f59"),
-							knownvalue.StringExact("0.1.1"),
-							knownvalue.StringExact("0.1.2-rc1"),
-							knownvalue.StringExact("0.1.10"),
+							knownvalue.StringExact("0.2.1"),
 						}),
 					),
 				},
 			},
 			{
 				Config: `
-        locals {
-          list = ["2","2.0", "2.0.0", "v2", "v2.0", "v2.0.0"]
-        }
-        output "semvers_deduped" {
-          value = provider::semvers::sort(local.list)
+        output "semvers_filtered" {
+          value = provider::semvers::pick(
+						["0.1.0", "0.1.1-rc1+a231f59", "0.1.1", "0.1.10", "0.1.2-rc1", "0.2.1"],
+						">= 0.1.1"
+					)
         }
         `,
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownOutputValue(
-						"semvers_deduped",
-						knownvalue.ListSizeExact(1),
+						"semvers_filtered",
+						knownvalue.ListExact([]knownvalue.Check{
+							knownvalue.StringExact("0.1.1"),
+							knownvalue.StringExact("0.1.10"),
+							knownvalue.StringExact("0.2.1"),
+						}),
 					),
 				},
 			},
 			{
 				Config: `
-        locals {
-          list = ["2+abc", "2.0.0", "v2", "v2.0+abc"]
-        }
-        output "semvers_deduped" {
-          value = provider::semvers::sort(local.list)
+        output "semvers_filtered" {
+          value = provider::semvers::pick(
+						["0.1.0", "0.1.1-rc1+a231f59", "0.1.1", "0.1.10", "0.1.2-rc1", "0.2.1"],
+						">= 3.0"
+					)
         }
         `,
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownOutputValue(
-						"semvers_deduped",
-						knownvalue.ListSizeExact(2),
+						"semvers_filtered",
+						knownvalue.ListSizeExact(0),
 					),
 				},
 			},
@@ -77,7 +78,7 @@ func TestSemversSortFunction_Known(t *testing.T) {
 	})
 }
 
-// func TestSemversSortFunction_Null(t *testing.T) {
+// func TPick_Null(t *testing.T) {
 //   resource.UnitTest(t, resource.TestCase{
 //     TerraformVersionChecks: []tfversion.TerraformVersionCheck{
 //       tfversion.SkipBelow(tfversion.Version1_8_0),
@@ -97,7 +98,7 @@ func TestSemversSortFunction_Known(t *testing.T) {
 //   })
 // }
 
-// func TestSemversSortFunction_Unknown(t *testing.T) {
+// func TPick_Unknown(t *testing.T) {
 //   resource.UnitTest(t, resource.TestCase{
 //     TerraformVersionChecks: []tfversion.TerraformVersionCheck{
 //       tfversion.SkipBelow(tfversion.Version1_8_0),
