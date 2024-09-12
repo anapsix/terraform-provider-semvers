@@ -4,6 +4,9 @@
 // ensure the documentation is formatted properly.
 //go:generate terraform fmt -recursive ./examples/
 
+// Also format the manual test TF file(s)
+//go:generate terraform fmt -recursive ./test/
+
 // Run the docs generation tool, check its repository for more information on how it works and how docs
 // can be customized.
 //go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate -provider-name semvers

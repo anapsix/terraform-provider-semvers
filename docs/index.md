@@ -3,12 +3,12 @@
 page_title: "semvers Provider"
 subcategory: ""
 description: |-
-  Implements semvers_list data source and sort provider function, using github.com/Masterminds/semver/v3. Usage of provider::semvers::sort([]) requires Terraform version 1.8 and above.
+  Implements semvers_list data source, sort and pick provider function. All functionality is based on github.com/Masterminds/semver/v3. Usage of provider functions requires Terraform version 1.8 and above.
 ---
 
 # semvers Provider
 
-Implements `semvers_list` data source and `sort` provider function, using `github.com/Masterminds/semver/v3`. Usage of `provider::semvers::sort([])` requires Terraform version 1.8 and above.
+Implements `semvers_list` data source, `sort` and `pick` provider function. All functionality is based on `github.com/Masterminds/semver/v3`. Usage of provider functions requires Terraform version 1.8 and above.
 
 ## Example Usage
 
