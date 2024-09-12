@@ -1,3 +1,8 @@
+## 0.4.1
+
+### Added:
+- The `provider::semvers::pick` function examples
+
 ## 0.4.0
 
 ### Added:
