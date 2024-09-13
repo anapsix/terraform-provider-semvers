@@ -6,6 +6,27 @@ import (
 	"github.com/Masterminds/semver/v3"
 )
 
+// Compare compares this version to another one. It returns -1, 0, or 1 if
+// the version smaller, equal, or larger than the other version. 99 is returned
+// on error.
+//
+// Versions are compared by X.Y.Z. Build metadata is ignored. Prerelease is
+// lower than the version without a prerelease. Compare always takes into account
+// prereleases. If you want to work with ranges using typical range syntaxes that
+// skip prereleases if the range is not looking for them use constraints.
+func Compare(a string, b string) (int, error) {
+	version_a, err := semver.NewVersion(a)
+	if err != nil {
+		return 99, err
+	}
+	version_b, err := semver.NewVersion(b)
+	if err != nil {
+		return 99, err
+	}
+	result := version_a.Compare(version_b)
+	return result, nil
+}
+
 // RemoveDups removes duplicate versions from a list of semver.Version pointers
 func RemoveDups(list []*semver.Version) []*semver.Version {
 	seen := make(map[string]struct{})

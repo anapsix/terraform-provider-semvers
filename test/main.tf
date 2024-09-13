@@ -34,6 +34,7 @@ locals {
     "v0.90.1",
     "9",
     "9.0.0",
+    "v9.1.0-rc1",
     "v0.9.0",
     "v0.9",
     "v0.80.0",
@@ -56,13 +57,39 @@ locals {
 
   sorted_by_function = provider::semvers::sort(local.versions)
   picked_by_function = provider::semvers::pick(local.versions, "~> 0.9")
+  compared_by_function = [
+    {
+      expected  = "equals (0)"
+      arguments = "0.1.1, 0.1.1"
+      result    = provider::semvers::compare("0.1.1", "0.1.1")
+    },
+    {
+      expected  = "equals (0)"
+      arguments = "0.1.0, 0.1.0+test"
+      result    = provider::semvers::compare("0.1.0", "0.1.0+test")
+    },
+    {
+      expected  = "lesser (-1)"
+      arguments = "0.1.0, 0.1.1"
+      result    = provider::semvers::compare("0.1.0", "0.1.1")
+    },
+    {
+      expected  = "greater (1)"
+      arguments = "0.1.1, 0.1.0"
+      result    = provider::semvers::compare("0.1.1", "0.1.0")
+    },
+  ]
 }
 
-output "semvers_sorted_by_function" {
+output "semver_function_compare" {
+  value = local.compared_by_function
+}
+
+output "semvers_function_sorted" {
   value = local.sorted_by_function
 }
 
-output "semvers_picked" {
+output "semvers_function_picked" {
   value = local.picked_by_function
 }
 

@@ -10,7 +10,6 @@ import (
 	shelper "github.com/anapsix/terraform-provider-semvers/internal/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
@@ -48,13 +47,15 @@ func (r SemversSortFunction) Run(ctx context.Context, req function.RunRequest, r
 	var versions []string
 
 	resp.Error = function.ConcatFuncErrors(req.Arguments.Get(ctx, &versions))
+
+	if resp.Error != nil {
+		return
+	}
+
 	semvers, err := shelper.StringsToStrings(versions)
 
 	if err != nil {
-		tflog.Error(ctx, "Error in shelper.StringsToStrings()")
-	}
-
-	if resp.Error != nil {
+		resp.Error = function.ConcatFuncErrors(resp.Error, function.NewFuncError("Error performing operation: "+err.Error()))
 		return
 	}
 

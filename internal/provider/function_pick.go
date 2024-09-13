@@ -10,7 +10,6 @@ import (
 	shelper "github.com/anapsix/terraform-provider-semvers/internal/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
@@ -29,15 +28,15 @@ func (r SemversPickFunction) Metadata(_ context.Context, req function.MetadataRe
 
 func (r SemversPickFunction) Definition(_ context.Context, _ function.DefinitionRequest, resp *function.DefinitionResponse) {
 	resp.Definition = function.Definition{
-		Summary:             "Returns semver from list of semvers according to contraint",
-		MarkdownDescription: "Returns semver from list of semvers according to contraint",
+		Summary:             "Returns semver from list of semvers according to constraint",
+		MarkdownDescription: "Returns semver from list of semvers according to constraint",
 		Parameters: []function.Parameter{
 			function.ListParameter{
 				AllowNullValue:      false,
 				AllowUnknownValues:  false,
 				ElementType:         types.StringType,
 				Name:                "versions",
-				MarkdownDescription: "List of semver strigs",
+				MarkdownDescription: "List of semver strings",
 			},
 			function.StringParameter{
 				AllowNullValue:      false,
@@ -64,7 +63,8 @@ func (r SemversPickFunction) Run(ctx context.Context, req function.RunRequest, r
 	filtered_semvers, err := shelper.PickFromSemverStrings(versions, constraint)
 
 	if err != nil {
-		tflog.Error(ctx, "Error in shelper.PickFromSemverStrings()")
+		resp.Error = function.ConcatFuncErrors(resp.Error, function.NewFuncError("Error performing operation: "+err.Error()))
+		return
 	}
 
 	if len(filtered_semvers) == 0 {

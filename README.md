@@ -3,9 +3,9 @@
 Implements a data-source `semvers_list` to make semver sorting easy in TF, and
 provider functions (TF >= 1.8 is required):
 - `data.semvers_list`: sorts a list of semver strings
-- `provider::semvers::sort`: sorts a list of semver strings, returns sorted one
+- `provider::semvers::compare`: compares two semver strings
 - `provider::semvers::pick`: filters a list of semver strings by constraint
-
+- `provider::semvers::sort`: sorts a list of semver strings, returns sorted one
 
 See the [Terraform Registry provider page][1].
 

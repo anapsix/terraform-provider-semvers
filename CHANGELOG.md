@@ -1,3 +1,9 @@
+## 0.5.0
+
+### Added
+- The  `provider::semvers::compare` function for comparing semver strings
+- Tests covering invalid values
+
 ## 0.4.2
 
 ### Fixed

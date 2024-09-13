@@ -5,6 +5,7 @@
 package provider
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -21,14 +22,12 @@ func TestSemversPickFunction_Known(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: `
-        output "semvers_filtered" {
+				Config: `output "semvers_filtered" {
           value = provider::semvers::pick(
-						["0.1.1-rc1+a231f59", "0.1.1", "0.1.10", "0.1.2-rc1", "0.2.1"],
-						"~> 0.2"
-					)
-        }
-        `,
+           ["0.1.1-rc1+a231f59", "0.1.1", "0.1.10", "0.1.2-rc1", "0.2.1"],
+           "~> 0.2"
+          )
+        }`,
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownOutputValue(
 						"semvers_filtered",
@@ -39,14 +38,12 @@ func TestSemversPickFunction_Known(t *testing.T) {
 				},
 			},
 			{
-				Config: `
-        output "semvers_filtered" {
+				Config: `output "semvers_filtered" {
           value = provider::semvers::pick(
-						["0.1.0", "0.1.1-rc1+a231f59", "0.1.1", "0.1.10", "0.1.2-rc1", "0.2.1"],
-						">= 0.1.1"
-					)
-        }
-        `,
+            ["0.1.0", "0.1.1-rc1+a231f59", "0.1.1", "0.1.10", "0.1.2-rc1", "0.2.1"],
+            ">= 0.1.1"
+          )
+        }`,
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownOutputValue(
 						"semvers_filtered",
@@ -59,14 +56,23 @@ func TestSemversPickFunction_Known(t *testing.T) {
 				},
 			},
 			{
-				Config: `
-        output "semvers_filtered" {
+				Config: `output "semvers_filtered" {
           value = provider::semvers::pick(
-						["0.1.0", "0.1.1-rc1+a231f59", "0.1.1", "0.1.10", "0.1.2-rc1", "0.2.1"],
-						">= 3.0"
-					)
-        }
-        `,
+            ["0.1.0", "0.1.1-rc1+a231f59", "0.1.1", "0.1.10", "0.1.2-rc1", "0.2.1"],
+            ">= 3.0"
+          )
+        }`,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownOutputValue(
+						"semvers_filtered",
+						knownvalue.ListSizeExact(0),
+					),
+				},
+			},
+			{
+				Config: `output "semvers_filtered" {
+          value = provider::semvers::pick([], ">= 3.0")
+        }`,
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownOutputValue(
 						"semvers_filtered",
@@ -78,47 +84,63 @@ func TestSemversPickFunction_Known(t *testing.T) {
 	})
 }
 
-// func TPick_Null(t *testing.T) {
-//   resource.UnitTest(t, resource.TestCase{
-//     TerraformVersionChecks: []tfversion.TerraformVersionCheck{
-//       tfversion.SkipBelow(tfversion.Version1_8_0),
-//     },
-//     ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-//     Steps: []resource.TestStep{
-//       {
-//         Config: `
-//         output "test" {
-//           value = provider::semvers::sort_semvers(null)
-//         }
-//         `,
-//         // The parameter does not enable AllowNullValue
-//         ExpectError: regexp.MustCompile(`argument must not be null`),
-//       },
-//     },
-//   })
-// }
+func TestSemversPickFunction_Invalid(t *testing.T) {
+	t.Parallel()
 
-// func TPick_Unknown(t *testing.T) {
-//   resource.UnitTest(t, resource.TestCase{
-//     TerraformVersionChecks: []tfversion.TerraformVersionCheck{
-//       tfversion.SkipBelow(tfversion.Version1_8_0),
-//     },
-//     ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-//     Steps: []resource.TestStep{
-//       {
-//         Config: `
-//         resource "terraform_data" "test" {
-//           input = "testvalue"
-//         }
-
-//         output "test" {
-//           value = provider::semvers::sort_semvers(terraform_data.test.output)
-//         }
-//         `,
-//         Check: resource.ComposeAggregateTestCheckFunc(
-//           resource.TestCheckOutput("test", "testvalue"),
-//         ),
-//       },
-//     },
-//   })
-// }
+	resource.UnitTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_8_0),
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `output "result" {
+          value = provider::semvers::pick(null, ">= 3.0")
+        }`,
+				ExpectError: regexp.MustCompile(`Invalid function argument`),
+			},
+			{
+				Config: `output "results" {
+          value = provider::semvers::pick(["blah", "0.1.1"], "~> 0.2")
+        }`,
+				ExpectError: regexp.MustCompile(`Invalid Semantic Version`),
+			},
+			{
+				Config: `output "results" {
+          value = provider::semvers::pick(["0.1.0", "0.1.1"], "~~> 0.2")
+        }`,
+				ExpectError: regexp.MustCompile(`improper constraint`),
+			},
+			{
+				Config: `output "results" {
+          value = provider::semvers::pick(true, "~> 0.2")
+        }`,
+				ExpectError: regexp.MustCompile(`Invalid function argument`),
+			},
+			{
+				Config: `output "results" {
+          value = provider::semvers::pick(["0.1.0", "0.1.1"], true)
+        }`,
+				ExpectError: regexp.MustCompile(`improper constraint`),
+			},
+			{
+				Config: `output "results" {
+          value = provider::semvers::pick(["0.1.0", "0.1.1"], {one: 1})
+        }`,
+				ExpectError: regexp.MustCompile(`Invalid function argument`),
+			},
+			{
+				Config: `output "results" {
+          value = provider::semvers::pick(null, "~> 0.2")
+        }`,
+				ExpectError: regexp.MustCompile(`Invalid function argument`),
+			},
+			{
+				Config: `output "results" {
+          value = provider::semvers::pick(["0.1.0", "0.1.1"], null)
+        }`,
+				ExpectError: regexp.MustCompile(`Invalid function argument`),
+			},
+		},
+	})
+}
