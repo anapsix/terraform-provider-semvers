@@ -1,3 +1,9 @@
+## Unreleased
+
+### Fixed
+- spacing consistency
+- misc go.mod update
+
 ## 0.5.0
 
 ### Added
