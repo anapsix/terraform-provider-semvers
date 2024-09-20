@@ -85,6 +85,31 @@ output "semver_function_compare" {
   value = local.compared_by_function
 }
 
+output "semvers_function_equals" {
+  value = [
+    {
+      expected  = "true"
+      arguments = "0.1.1, 0.1.1"
+      result    = provider::semvers::equals("0.1.1", "0.1.1")
+    },
+    {
+      expected  = "true"
+      arguments = "0.1.0, 0.1.0+test"
+      result    = provider::semvers::equals("0.1.0", "0.1.0+test")
+    },
+    {
+      expected  = "false"
+      arguments = "0.1.0, 0.1.1"
+      result    = provider::semvers::equals("0.1.0", "0.1.1")
+    },
+    {
+      expected  = "false"
+      arguments = "0.1.1, 0.1.0"
+      result    = provider::semvers::equals("0.1.1", "0.1.0")
+    },
+  ]
+}
+
 output "semvers_function_sorted" {
   value = local.sorted_by_function
 }

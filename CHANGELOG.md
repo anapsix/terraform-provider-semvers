@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Added
+- The  `provider::semvers::equals` function for checking equality of two semver
+
 ### Fixed
 - spacing consistency
 - misc go.mod update

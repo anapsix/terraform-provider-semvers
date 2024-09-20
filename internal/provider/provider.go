@@ -68,5 +68,6 @@ func (p *semversProvider) Functions(_ context.Context) []func() function.Functio
 		NewSemversSortFunction,
 		NewSemversPickFunction,
 		NewSemversCompareFunction,
+		NewSemversEqualsFunction,
 	}
 }

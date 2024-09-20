@@ -27,6 +27,17 @@ func Compare(a string, b string) (int, error) {
 	return result, nil
 }
 
+func Equals(a string, b string) (bool, error) {
+	compare, err := Compare(a, b)
+	if err != nil || compare == 99 {
+		return false, err
+	}
+	if compare == 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
 // RemoveDups removes duplicate versions from a list of semver.Version pointers
 func RemoveDups(list []*semver.Version) []*semver.Version {
 	seen := make(map[string]struct{})
