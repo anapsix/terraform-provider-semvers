@@ -4,6 +4,7 @@ Implements a data-source `semvers_list` to make semver sorting easy in TF, and
 provider functions (TF >= 1.8 is required):
 - `data.semvers_list`: sorts a list of semver strings
 - `provider::semvers::compare`: compares two semver strings
+- `provider::semvers::equals`: checks two semver strings for equality
 - `provider::semvers::pick`: filters a list of semver strings by constraint
 - `provider::semvers::sort`: sorts a list of semver strings, returns sorted one
 

@@ -1,5 +1,10 @@
 ## Unreleased
 
+## 0.5.2
+
+### Fixed
+- mentioning `equals` function in README
+
 ## 0.5.1
 
 ### Added
