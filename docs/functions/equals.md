@@ -3,12 +3,15 @@
 page_title: "equals function - semvers"
 subcategory: ""
 description: |-
-  Checks the equality of two semvers strings, returns boolean
+  Checks the equality of two semvers strings, returns a boolean
 ---
 
 # function: equals
 
-Checks the equality of two semvers strings, returns boolean
+Checks the equality of two semvers strings, returns a boolean.
+		<br><br>~> **NOTE:** Versions are compared by X.Y.Z. Build metadata is ignored. Prerelease is
+    lower than the version without a prerelease. Compare always takes into account
+    prereleases. See [Masterminds/semver](https://github.com/Masterminds/semver).
 
 ## Example Usage
 

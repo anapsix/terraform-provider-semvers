@@ -35,9 +35,9 @@ func (r SemversCompareFunction) Definition(_ context.Context, _ function.Definit
     <li><code>-1</code> if larger</li>
     <li><code>99</code> if error</li>
     </ul>
-    <br>Versions are compared by X.Y.Z. Build metadata is ignored. Prerelease is
+    <br>~> **NOTE:** Versions are compared by X.Y.Z. Build metadata is ignored. Prerelease is
     lower than the version without a prerelease. Compare always takes into account
-    prereleases.`,
+    prereleases. See [Masterminds/semver](https://github.com/Masterminds/semver).`,
 		Parameters: []function.Parameter{
 			function.StringParameter{
 				AllowNullValue:      false,

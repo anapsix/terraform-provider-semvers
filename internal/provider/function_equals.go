@@ -27,8 +27,11 @@ func (r SemversEqualsFunction) Metadata(_ context.Context, req function.Metadata
 
 func (r SemversEqualsFunction) Definition(_ context.Context, _ function.DefinitionRequest, resp *function.DefinitionResponse) {
 	resp.Definition = function.Definition{
-		Summary:             "Checks the equality of two semvers strings, returns boolean",
-		MarkdownDescription: "Checks the equality of two semvers strings, returns boolean",
+		Summary: "Checks the equality of two semvers strings, returns a boolean",
+		MarkdownDescription: `Checks the equality of two semvers strings, returns a boolean.
+		<br><br>~> **NOTE:** Versions are compared by X.Y.Z. Build metadata is ignored. Prerelease is
+    lower than the version without a prerelease. Compare always takes into account
+    prereleases. See [Masterminds/semver](https://github.com/Masterminds/semver).`,
 		Parameters: []function.Parameter{
 			function.StringParameter{
 				AllowNullValue:      false,

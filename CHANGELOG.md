@@ -8,6 +8,7 @@
 ### Fixed
 - spacing consistency
 - go modules update
+- improving functions docs
 
 ## 0.5.0
 
