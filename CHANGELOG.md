@@ -1,5 +1,12 @@
 ## Unreleased
 
+## 0.5.3
+
+### Changed
+- updating go modules
+- bumping go to 1.23.2
+- bumping pre-commit repos
+
 ## 0.5.2
 
 ### Fixed
