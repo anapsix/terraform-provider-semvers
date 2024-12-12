@@ -12,7 +12,7 @@ Returns comparison results as integer
     <ul>
     <li><code>-1</code> if smaller</li>
     <li><code>0</code> if equals</li>
-    <li><code>-1</code> if larger</li>
+    <li><code>1</code> if greater</li>
     <li><code>99</code> if error</li>
     </ul>
     <br>~> **NOTE:** Versions are compared by X.Y.Z. Build metadata is ignored. Prerelease is
