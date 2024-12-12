@@ -1,5 +1,10 @@
 ## Unreleased
 
+## 0.5.4
+
+### Changed
+- updated go modules
+
 ## 0.5.3
 
 ### Changed
