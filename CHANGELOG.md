@@ -1,5 +1,13 @@
 ## Unreleased
 
+## 0.6.0
+
+### Added
+- The `provider::semvers::constrained` function for checking semver constrains
+
+### Changed
+- updating google.golang.org/grpc v1.68.1 -> v1.69.0
+
 ## 0.5.5
 
 ### Changed
@@ -28,7 +36,7 @@
 ## 0.5.1
 
 ### Added
-- The  `provider::semvers::equals` function for checking equality of two semver
+- The `provider::semvers::equals` function for checking equality of two semver
 
 ### Fixed
 - spacing consistency
@@ -38,7 +46,7 @@
 ## 0.5.0
 
 ### Added
-- The  `provider::semvers::compare` function for comparing semver strings
+- The `provider::semvers::compare` function for comparing semver strings
 - Tests covering invalid values
 
 ## 0.4.2
@@ -54,7 +62,7 @@
 ## 0.4.0
 
 ### Added
-- The  `provider::semvers::pick` function which takes list of semver strings,
+- The `provider::semvers::pick` function which takes list of semver strings,
   and semver constraint, and returns a list of filtered semver strings, sorted and deduped,
   matching the constraint. See [Masterminds/semver](https://github.com/Masterminds/semver/tree/master?tab=readme-ov-file#checking-version-constraints) for constraint syntax.
 
@@ -69,7 +77,7 @@
 ## 0.3.0
 
 ### Added
-- The  `provider::semvers::sort` function which takes list of semver strings,
+- The `provider::semvers::sort` function which takes list of semver strings,
   and returns a list of semver strings, sorted and deduped
 
 ## 0.2.1
