@@ -1,5 +1,13 @@
 ## Unreleased
 
+## 0.5.5
+
+### Changed
+- updating golang.org/x/crypto v0.30.0 -> v0.31.0
+
+### Changed
+- updated go modules
+
 ## 0.5.4
 
 ### Changed
