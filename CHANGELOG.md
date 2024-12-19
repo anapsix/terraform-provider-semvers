@@ -1,5 +1,12 @@
 ## Unreleased
 
+## 0.6.1
+
+## Changed
+- updating golang.org/x/net v0.32.0 -> v0.33.0 ([CVE-2024-45338])
+
+[CVE-2024-45338]: https://github.com/advisories/GHSA-w32m-9786-jp63
+
 ## 0.6.0
 
 ### Added
