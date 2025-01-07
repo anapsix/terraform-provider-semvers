@@ -1,5 +1,10 @@
 ## Unreleased
 
+## 0.6.2
+
+### Changed
+- udpating go modules
+
 ## 0.6.1
 
 ## Changed
