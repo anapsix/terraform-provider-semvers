@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Changed
+- bumping `goreleaser/goreleaser-action` v6.0.0 -> v6.2.1
+- bumping `go` 1.23.4 -> 1.24.0
+
 ## 0.7.0
 
 ### Changed

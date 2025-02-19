@@ -31,7 +31,7 @@ jobs:
         passphrase: ${{ secrets.GPG_PRIVATE_KEY_PASSPHRASE }}
     -
       name: GoReleaser Action
-      uses: goreleaser/goreleaser-action@v6.0.0
+      uses: goreleaser/goreleaser-action@v6.2.1
       with:
         args: release --clean
       env:
