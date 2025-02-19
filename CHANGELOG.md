@@ -1,5 +1,11 @@
 ## Unreleased
 
+## 0.7.0
+
+### Changed
+- bumping the `terraform-plugin-framework` v1.13.0 -> v1.14.0, supports TF 1.11
+- udpating other go modules
+
 ## 0.6.2
 
 ### Changed
