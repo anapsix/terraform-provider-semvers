@@ -1,8 +1,9 @@
 ## Unreleased
 
-### Changed
+### 0.7.1
+- updating go modules
 - bumping `goreleaser/goreleaser-action` v6.0.0 -> v6.2.1
-- bumping `go` 1.23.4 -> 1.24.0
+- bumping `go` 1.23.4 -> 1.24.1
 
 ## 0.7.0
 
