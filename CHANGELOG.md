@@ -14,6 +14,7 @@
 - Upgrade Masterminds/semver to v3.5.0
 - Bump pre-commit-hooks v5.0.0 -> v6.0.0
 - Bump golangci-lint v1.61.0 -> v2.12.2
+- Bump release workflow actions (SHA-pinned): `actions/setup-go` v5 -> v6.5.0, `crazy-max/ghaction-import-gpg` v6 -> v7.0.0, `goreleaser/goreleaser-action` v6.2.1 -> v7.2.3
 
 ### Documentation
 - Provider configuration, provider alias limitations with functions, and OpenTofu differences
