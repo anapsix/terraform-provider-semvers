@@ -80,13 +80,13 @@ func TestSemversCompareFunction_Invalid(t *testing.T) {
 				Config: `output "results" {
           value = provider::semvers::compare("blah", "0.1.0")
         }`,
-				ExpectError: regexp.MustCompile(`Invalid Semantic Version`),
+				ExpectError: regexp.MustCompile(`(?i)invalid semantic version`),
 			},
 			{
 				Config: `output "results" {
           value = provider::semvers::compare("0.1.0", "blah")
         }`,
-				ExpectError: regexp.MustCompile(`Invalid Semantic Version`),
+				ExpectError: regexp.MustCompile(`(?i)invalid semantic version`),
 			},
 		},
 	})

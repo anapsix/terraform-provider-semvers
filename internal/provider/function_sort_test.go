@@ -85,7 +85,7 @@ func TestSemversSortFunction_Invalid(t *testing.T) {
 				Config: `output "results" {
           value = provider::semvers::sort(["0.1.0", "blah"])
         }`,
-				ExpectError: regexp.MustCompile(`Invalid Semantic Version`),
+				ExpectError: regexp.MustCompile(`(?i)invalid semantic version`),
 			},
 			{
 				Config: `output "results" {
