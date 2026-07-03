@@ -1,9 +1,11 @@
 package shelper
 
 import (
+	"context"
 	"sort"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Compare compares this version to another one. It returns -1, 0, or 1 if
@@ -52,20 +54,37 @@ func RemoveDups(list []*semver.Version) []*semver.Version {
 	return result
 }
 
+func logSkippedInvalidTags(ctx context.Context, skipped []string) {
+	if len(skipped) == 0 {
+		return
+	}
+
+	tflog.Info(ctx, "Skipping invalid semver tags", map[string]interface{}{
+		"count": len(skipped),
+		"tags":  skipped,
+	})
+}
+
 // StringsToSemvers converts a list of version strings to semver.Version pointers,
 // sorts them, and removes duplicates.
-func StringsToSemvers(list []string) ([]*semver.Version, error) {
+func StringsToSemvers(ctx context.Context, list []string, ignoreInvalid bool) ([]*semver.Version, error) {
 	var semvers []*semver.Version
+	var skipped []string
+
 	for _, raw := range list {
 		v, err := semver.NewVersion(raw)
 		if err != nil {
+			if ignoreInvalid {
+				skipped = append(skipped, raw)
+				continue
+			}
 			return nil, err
 		}
 		semvers = append(semvers, v)
 	}
-	// Sort the semver versions
+
+	logSkippedInvalidTags(ctx, skipped)
 	sort.Sort(semver.Collection(semvers))
-	// Remove duplicates
 	return RemoveDups(semvers), nil
 }
 
@@ -80,39 +99,34 @@ func SemversToStrings(semversList []*semver.Version) []string {
 
 // StringsToStrings converts a list of version strings to a sorted and deduplicated
 // list of version strings
-func StringsToStrings(list []string) ([]string, error) {
-	semvers, err := StringsToSemvers(list)
+func StringsToStrings(ctx context.Context, list []string, ignoreInvalid bool) ([]string, error) {
+	semvers, err := StringsToSemvers(ctx, list, ignoreInvalid)
 	if err != nil {
 		return nil, err
 	}
 	return SemversToStrings(semvers), nil
 }
 
-func PickFromSemverStrings(list []string, contraint string) ([]string, error) {
-	var semvers_filtered []string
-	semvers_list, err := StringsToSemvers(list)
-	if err != nil {
-		return nil, err
-	}
-	semver_compare, err := semver.NewConstraint(contraint)
+func PickFromSemverStrings(ctx context.Context, list []string, constraint string, ignoreInvalid bool) ([]string, error) {
+	semver_compare, err := semver.NewConstraint(constraint)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, v := range semvers_list {
-		match := semver_compare.Check(v)
-		// match, msgs := semver_compare.Validate(v)
-		// for _, m := range msgs {
-		// 	fmt.Println(m)
-		// }
-		if match {
+	semvers, err := StringsToSemvers(ctx, list, ignoreInvalid)
+	if err != nil {
+		return nil, err
+	}
+
+	var semvers_filtered []string
+	for _, v := range semvers {
+		if semver_compare.Check(v) {
 			semvers_filtered = append(semvers_filtered, v.String())
 		}
 	}
 
 	if len(semvers_filtered) == 0 {
-		var empty_results []string
-		return empty_results, nil
+		return []string{}, nil
 	}
 
 	return semvers_filtered, nil

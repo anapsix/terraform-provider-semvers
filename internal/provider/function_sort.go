@@ -13,23 +13,25 @@ import (
 )
 
 var (
-	_ function.Function = SemversSortFunction{}
+	_ function.Function = &SemversSortFunction{}
 )
 
-func NewSemversSortFunction() function.Function {
-	return SemversSortFunction{}
+type SemversSortFunction struct {
+	provider *semversProvider
 }
 
-type SemversSortFunction struct{}
+func NewSemversSortFunction() function.Function {
+	return &SemversSortFunction{}
+}
 
-func (r SemversSortFunction) Metadata(_ context.Context, req function.MetadataRequest, resp *function.MetadataResponse) {
+func (r *SemversSortFunction) Metadata(_ context.Context, req function.MetadataRequest, resp *function.MetadataResponse) {
 	resp.Name = "sort"
 }
 
-func (r SemversSortFunction) Definition(_ context.Context, _ function.DefinitionRequest, resp *function.DefinitionResponse) {
+func (r *SemversSortFunction) Definition(_ context.Context, _ function.DefinitionRequest, resp *function.DefinitionResponse) {
 	resp.Definition = function.Definition{
 		Summary:             "Returns sorted list of semver strings",
-		MarkdownDescription: "Returns sorted and deduped list of semver strings",
+		MarkdownDescription: "Returns sorted and deduped list of semver strings. When the provider `ignore_invalid_tags` setting is true, invalid semver strings in the list are skipped and logged at INFO level when TF_LOG is enabled.",
 		Parameters: []function.Parameter{
 			function.ListParameter{
 				ElementType:         types.StringType,
@@ -43,7 +45,7 @@ func (r SemversSortFunction) Definition(_ context.Context, _ function.Definition
 	}
 }
 
-func (r SemversSortFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
+func (r *SemversSortFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
 	var versions []string
 
 	resp.Error = function.ConcatFuncErrors(req.Arguments.Get(ctx, &versions))
@@ -52,7 +54,12 @@ func (r SemversSortFunction) Run(ctx context.Context, req function.RunRequest, r
 		return
 	}
 
-	semvers, err := shelper.StringsToStrings(versions)
+	ignoreInvalidTags := false
+	if r.provider != nil {
+		ignoreInvalidTags = r.provider.ignoreInvalidTags()
+	}
+
+	semvers, err := shelper.StringsToStrings(ctx, versions, ignoreInvalidTags)
 
 	if err != nil {
 		resp.Error = function.ConcatFuncErrors(resp.Error, function.NewFuncError("Error performing operation: "+err.Error()))

@@ -5,9 +5,7 @@ package provider
 
 import (
 	"context"
-	"sort"
 
-	"github.com/Masterminds/semver/v3"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -18,7 +16,9 @@ import (
 )
 
 // Data Source definition
-type semversListDataSource struct{}
+type semversListDataSource struct {
+	ignoreInvalidTags bool
+}
 
 var versionAttributes = map[string]schema.Attribute{
 	"original": schema.StringAttribute{
@@ -85,6 +85,11 @@ func (d *semversListDataSource) Schema(ctx context.Context, req datasource.Schem
 	}
 }
 
+func (d *semversListDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+	providerConfig := providerConfigFromDataSourceConfigure(req, resp)
+	d.ignoreInvalidTags = providerConfig.IgnoreInvalidTags
+}
+
 func (d *semversListDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var model semversListDataSourceModel
 
@@ -106,15 +111,21 @@ func (d *semversListDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	// Parse and sort the semver strings
 	semverStrings := convertTerraformListToStringSlice(model.List)
-	semvers, err := shelper.StringsToSemvers(semverStrings)
+	semvers, err := shelper.StringsToSemvers(ctx, semverStrings, d.ignoreInvalidTags)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error in shelper.StringsToSemvers() semver",
-			"Could not convert list of strings to list of semvers.",
+			"Error parsing semver list",
+			"Could not convert list of strings to list of semvers: "+err.Error(),
 		)
 		return
 	}
-	sort.Sort(semver.Collection(semvers))
+	if len(semvers) == 0 {
+		resp.Diagnostics.AddError(
+			"No valid semver strings",
+			"The list did not contain any valid semver strings after parsing.",
+		)
+		return
+	}
 
 	// Prepare the sorted list of semver strings
 	sortedSemvers := make([]map[string]interface{}, len(semvers))

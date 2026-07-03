@@ -108,3 +108,30 @@ func TestSemversSortFunction_Invalid(t *testing.T) {
 		},
 	})
 }
+
+func TestSemversSortFunction_InvalidTagsIgnored(t *testing.T) {
+	t.Parallel()
+
+	resource.UnitTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_8_0),
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactoriesIgnoreInvalidTags(true),
+		Steps: []resource.TestStep{
+			{
+				Config: `output "results" {
+          value = provider::semvers::sort(["develop-latest", "0.2.1", "0.1.0"])
+        }`,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownOutputValue(
+						"results",
+						knownvalue.ListExact([]knownvalue.Check{
+							knownvalue.StringExact("0.1.0"),
+							knownvalue.StringExact("0.2.1"),
+						}),
+					),
+				},
+			},
+		},
+	})
+}

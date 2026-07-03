@@ -8,7 +8,7 @@ description: |-
 
 # function: sort
 
-Returns sorted and deduped list of semver strings
+Returns sorted and deduped list of semver strings. When the provider `ignore_invalid_tags` setting is true, invalid semver strings in the list are skipped and logged at INFO level when TF_LOG is enabled.
 
 ## Example Usage
 

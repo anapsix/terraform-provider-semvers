@@ -13,23 +13,25 @@ import (
 )
 
 var (
-	_ function.Function = SemversPickFunction{}
+	_ function.Function = &SemversPickFunction{}
 )
 
-func NewSemversPickFunction() function.Function {
-	return SemversPickFunction{}
+type SemversPickFunction struct {
+	provider *semversProvider
 }
 
-type SemversPickFunction struct{}
+func NewSemversPickFunction() function.Function {
+	return &SemversPickFunction{}
+}
 
-func (r SemversPickFunction) Metadata(_ context.Context, req function.MetadataRequest, resp *function.MetadataResponse) {
+func (r *SemversPickFunction) Metadata(_ context.Context, req function.MetadataRequest, resp *function.MetadataResponse) {
 	resp.Name = "pick"
 }
 
-func (r SemversPickFunction) Definition(_ context.Context, _ function.DefinitionRequest, resp *function.DefinitionResponse) {
+func (r *SemversPickFunction) Definition(_ context.Context, _ function.DefinitionRequest, resp *function.DefinitionResponse) {
 	resp.Definition = function.Definition{
 		Summary:             "Returns semver from list of semvers according to constraint",
-		MarkdownDescription: "Returns semver from list of semvers according to constraint",
+		MarkdownDescription: "Returns semver from list of semvers according to constraint. When the provider `ignore_invalid_tags` setting is true, invalid semver strings in the list are skipped and logged at INFO level when TF_LOG is enabled.",
 		Parameters: []function.Parameter{
 			function.ListParameter{
 				AllowNullValue:      false,
@@ -51,7 +53,7 @@ func (r SemversPickFunction) Definition(_ context.Context, _ function.Definition
 	}
 }
 
-func (r SemversPickFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
+func (r *SemversPickFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
 	var versions []string
 	var constraint string
 
@@ -60,7 +62,12 @@ func (r SemversPickFunction) Run(ctx context.Context, req function.RunRequest, r
 		return
 	}
 
-	filtered_semvers, err := shelper.PickFromSemverStrings(versions, constraint)
+	ignoreInvalidTags := false
+	if r.provider != nil {
+		ignoreInvalidTags = r.provider.ignoreInvalidTags()
+	}
+
+	filtered_semvers, err := shelper.PickFromSemverStrings(ctx, versions, constraint, ignoreInvalidTags)
 
 	if err != nil {
 		resp.Error = function.ConcatFuncErrors(resp.Error, function.NewFuncError("Error performing operation: "+err.Error()))

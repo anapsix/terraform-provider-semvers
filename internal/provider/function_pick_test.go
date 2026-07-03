@@ -84,6 +84,66 @@ func TestSemversPickFunction_Known(t *testing.T) {
 	})
 }
 
+func TestSemversPickFunction_InvalidTagsStrictDefault(t *testing.T) {
+	t.Parallel()
+
+	resource.UnitTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_8_0),
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `output "results" {
+          value = provider::semvers::pick(["develop-latest", "0.2.1"], "~> 0.2")
+        }`,
+				ExpectError: regexp.MustCompile(`(?i)invalid semantic version`),
+			},
+		},
+	})
+}
+
+func TestSemversPickFunction_InvalidTagsIgnored(t *testing.T) {
+	t.Parallel()
+
+	resource.UnitTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_8_0),
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactoriesIgnoreInvalidTags(true),
+		Steps: []resource.TestStep{
+			{
+				Config: `output "semvers_filtered" {
+          value = provider::semvers::pick(
+            ["develop-latest", "1.2.3-dev.1", "1.2.3-dev.2", "0.1.0"],
+            "~> 1.2.3-dev"
+          )
+        }`,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownOutputValue(
+						"semvers_filtered",
+						knownvalue.ListExact([]knownvalue.Check{
+							knownvalue.StringExact("1.2.3-dev.1"),
+							knownvalue.StringExact("1.2.3-dev.2"),
+						}),
+					),
+				},
+			},
+			{
+				Config: `output "semvers_filtered" {
+          value = provider::semvers::pick(["develop-latest", "not-a-version"], ">= 1.0")
+        }`,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownOutputValue(
+						"semvers_filtered",
+						knownvalue.ListSizeExact(0),
+					),
+				},
+			},
+		},
+	})
+}
+
 func TestSemversPickFunction_Invalid(t *testing.T) {
 	t.Parallel()
 
@@ -98,12 +158,6 @@ func TestSemversPickFunction_Invalid(t *testing.T) {
           value = provider::semvers::pick(null, ">= 3.0")
         }`,
 				ExpectError: regexp.MustCompile(`Invalid function argument`),
-			},
-			{
-				Config: `output "results" {
-          value = provider::semvers::pick(["blah", "0.1.1"], "~> 0.2")
-        }`,
-				ExpectError: regexp.MustCompile(`(?i)invalid semantic version`),
 			},
 			{
 				Config: `output "results" {

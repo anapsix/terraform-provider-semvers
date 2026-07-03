@@ -12,7 +12,19 @@ import (
 )
 
 var testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
-	"semvers": providerserver.NewProtocol6WithError(New("test")()),
+	"semvers": func() (tfprotov6.ProviderServer, error) {
+		return providerserver.NewProtocol6WithError(New("test")())()
+	},
+}
+
+func testAccProtoV6ProviderFactoriesIgnoreInvalidTags(ignoreInvalidTags bool) map[string]func() (tfprotov6.ProviderServer, error) {
+	return map[string]func() (tfprotov6.ProviderServer, error){
+		"semvers": func() (tfprotov6.ProviderServer, error) {
+			p := New("test")().(*semversProvider)
+			p.config.IgnoreInvalidTags = ignoreInvalidTags
+			return providerserver.NewProtocol6WithError(p)()
+		},
+	}
 }
 
 func testAccPreCheck(t *testing.T) {

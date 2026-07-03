@@ -18,8 +18,18 @@ terraform {
 
 provider "semvers" {}
 
+provider "semvers" {
+  alias               = "lenient"
+  ignore_invalid_tags = true
+}
+
 data "semvers_list" "example" {
   list = local.versions
+}
+
+data "semvers_list" "example_lenient" {
+  provider = semvers.lenient
+  list     = concat(local.versions, ["develop-latest", "not-a-version"])
 }
 
 locals {
@@ -120,6 +130,10 @@ output "semvers_function_picked" {
 
 output "semvers_list_sorted_versions" {
   value = data.semvers_list.example.sorted_versions
+}
+
+output "semvers_list_example_lenient" {
+  value = data.semvers_list.example_lenient
 }
 
 output "semvers_list_sorted_versions_dups" {

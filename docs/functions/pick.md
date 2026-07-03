@@ -8,7 +8,7 @@ description: |-
 
 # function: pick
 
-Returns semver from list of semvers according to constraint
+Returns semver from list of semvers according to constraint. When the provider `ignore_invalid_tags` setting is true, invalid semver strings in the list are skipped and logged at INFO level when TF_LOG is enabled.
 
 ## Example Usage
 
