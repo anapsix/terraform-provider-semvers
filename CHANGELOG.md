@@ -1,6 +1,24 @@
 ## Unreleased
 
-### 0.7.1
+## 0.8.0
+
+### Added
+- Optional `ignore_invalid_tags` provider attribute (default `false`) to skip invalid semver strings in list inputs ([#2])
+- INFO-level logging of skipped tags when `TF_LOG` is enabled
+
+### Changed
+- `semvers_list`, `provider::semvers::pick`, and `provider::semvers::sort` respect `ignore_invalid_tags`
+- Data source returns an error when no valid semver strings remain after parsing
+- Bump Go toolchain to 1.25.8
+- Upgrade terraform-plugin-framework, terraform-plugin-go, terraform-plugin-sdk/v2, and related HashiCorp dependencies
+- Upgrade Masterminds/semver to v3.5.0
+- Bump pre-commit-hooks v5.0.0 -> v6.0.0
+- Bump golangci-lint v1.61.0 -> v2.12.2
+
+### Documentation
+- Provider configuration, provider alias limitations with functions, and OpenTofu differences
+
+## 0.7.1
 - updating go modules
 - bumping `goreleaser/goreleaser-action` v6.0.0 -> v6.2.1
 - bumping `go` 1.23.4 -> 1.24.1
