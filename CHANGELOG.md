@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Changed
+- Migrate `.goreleaser.yaml` from deprecated `archives.format` to `formats`
+
 ## 0.8.0
 
 ### Added
