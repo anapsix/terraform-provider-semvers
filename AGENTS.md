@@ -100,6 +100,7 @@ Update `CHANGELOG.md` in the same PR for every user-visible change (behavior, sc
 - Branch from `main` (`fix/...`, `feat/...`, `chore/...`). Never commit directly to `main`; the only exception is the `version X.Y.Z` release commit (see [Releases](#releases)).
 - Note when a PR depends on another one, unless the PRs are in a GitHub stack, which already shows the dependency.
 - CI (`.github/workflows/test.yaml`) must pass: build, lint, generate drift check, and acceptance tests on Terraform 1.8, 1.12 and the latest minor.
+- PRs are squash-merged (the only merge method enabled): the PR title becomes the commit subject on `main` and the PR description its body. Write the title in the commit subject format (`[type] short summary`); individual branch commit messages matter less.
 - Keep history linear: update a branch by rebasing onto its base, not by merging, and push with `--force-with-lease`.
 - When pushing follow-up commits, update the PR description and the changelog in the same push. Tick the "CI green" checkbox only after the checks pass. In a stack of PRs, each PR's changelog entries belong on that PR's own branch.
 - Workflow security: trigger on `pull_request`, never `pull_request_target`; grant least-privilege `permissions`; never interpolate event data (PR titles, branch names, bodies) into `run:` steps.
