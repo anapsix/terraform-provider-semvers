@@ -59,7 +59,7 @@ go generate ./...               # format examples/ and test/, regenerate docs/
   // Copyright (c) Anastas Dancha
   // SPDX-License-Identifier: MPL-2.0
   ```
-  Keep the existing `Copyright (c) HashiCorp, Inc.` line in files that are close copies of the HashiCorp scaffolding template (`tools/tools.go`, `internal/provider/provider_test.go`). MPL-2.0 does not allow removing copyright notices from copied code.
+  Never remove an existing `Copyright (c) HashiCorp, Inc.` line. Every file that has one started as a copy of the HashiCorp provider scaffolding, however much it has changed since, and MPL-2.0 (section 3.4) forbids removing copyright notices from covered code. A new file copied or adapted from such a file keeps the HashiCorp line too; only files written from scratch get just the author line.
 - Go identifiers are camelCase; Terraform-facing names (attributes, parameters) are snake_case.
 - Parse with `semverutil.ParseVersion` / `semverutil.ParseConstraint`, not `semver.New*` directly, so errors carry the offending value.
 - Function errors use `function.NewArgumentFuncError(position, err.Error())`, with each argument parsed separately so the position is known. Don't add generic "Error performing operation" wrappers.

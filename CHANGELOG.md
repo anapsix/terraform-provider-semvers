@@ -18,7 +18,7 @@
 - `-debug` mode uses the `registry.terraform.io/anapsix/semvers` address ([#3])
 - Internal cleanup: package rename, naming, tests use real `provider` blocks ([#3])
 - Constraint errors no longer repeat the constraint ([#4])
-- Internal cleanup: argument parsing, `semverutil` helpers, CI ([#4])
+- Internal cleanup: argument parsing, `semverutil` helpers, CI, missing license header in `main.go` ([#4])
 - Pin all GitHub Actions to commit SHAs, kept up to date by Dependabot ([#4])
 - Bump `actions/setup-go` v6.5.0 -> v7.0.0 and `goreleaser/goreleaser-action` v7.2.3 -> v7.3.0 ([#4])
 
