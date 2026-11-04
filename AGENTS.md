@@ -26,6 +26,8 @@ A Terraform provider built on [terraform-plugin-framework](https://developer.has
 - **Provider config can be unknown during plan.** `Configure` records whether `ignore_invalid_tags` is unknown, and `semvers_list` errors out instead of guessing. Handle unknowns the same way for any new attribute.
 - **Parsing is lenient.** `semver.NewVersion` accepts a `v` prefix and missing minor/patch parts (`v1.2` becomes `1.2.0`). Dedup uses the normalized string, so `1.0.0+a` and `1.0.0+b` are both kept even though they compare equal.
 - **Sorting must stay stable** (`sort.Stable`), so dedup keeps the first occurrence from the input.
+- **List arguments can contain `null`.** Read list elements as `types.String` and convert them with `versionStrings`, which turns `null` into an invalid version. Reading into `[]string` fails with an internal "Value Conversion Error".
+- **Functions never see unknown values.** Terraform waits until every argument, including each list element, is known before calling a function, so function code does not handle unknowns. The data source and provider configuration do have to.
 
 ## Development commands
 
@@ -41,7 +43,7 @@ go generate ./...               # format examples/ and test/, regenerate docs/
 ```
 
 - **Run `go generate ./...` after changing any schema, description, parameter or example, and commit the result.** CI fails when generated files are out of date.
-- golangci-lint is pinned to the same version in `.pre-commit-config.yaml` and `.github/workflows/test.yaml`; bump both together. Run it with the Go version from `go.mod` (e.g. `GOTOOLCHAIN=go1.26.10 golangci-lint run ./...`). Older golangci-lint builds fail with `export data version ... is greater than maximum supported version` under a newer local Go.
+- Versions pinned in more than one place must be bumped together: golangci-lint (`.pre-commit-config.yaml` and the `lint` job), and the Terraform version of the `generate` job, which must match the newest version in the `test` matrix. Run it with the Go version from `go.mod` (e.g. `GOTOOLCHAIN=go1.26.10 golangci-lint run ./...`). Older golangci-lint builds fail with `export data version ... is greater than maximum supported version` under a newer local Go.
 - Manual testing: `go install`, add a `dev_overrides` block for `anapsix-dev/semvers` pointing at `~/go/bin` (see the comment at the top of `test/main.tf`), then `cd test && terraform plan`. Check with both `terraform` and `tofu` when changing function or provider-config behavior.
 
 ## Code conventions
@@ -61,7 +63,7 @@ go generate ./...               # format examples/ and test/, regenerate docs/
 ### Adding or changing a provider function
 
 1. Add `internal/provider/function_<name>.go` and register it in `semversProvider.Functions`.
-2. Add `internal/provider/function_<name>_test.go` covering known values, invalid input and null/wrong-type arguments.
+2. Add `internal/provider/function_<name>_test.go` covering known values, invalid input, null/wrong-type arguments, `null` list elements, and `ignore_invalid` passed as `true` and `false` where the function accepts it.
 3. Add `examples/functions/<name>/function.tf`.
 4. Update the function list in `README.md` and the provider `Description` in `provider.go`.
 5. Run `go generate ./...` and commit `docs/`.
@@ -92,7 +94,10 @@ Update `CHANGELOG.md` in the same PR for every user-visible change (behavior, sc
 - Branch from `main` (`fix/...`, `feat/...`, `chore/...`). Never commit directly to `main`; the only exception is the `version X.Y.Z` release commit (see [Releases](#releases)).
 - PR description: a summary of user-visible changes, a **Breaking change** section when relevant, and a test plan checklist. Note when a PR depends on another one, unless the PRs are in a GitHub stack, which already shows the dependency.
 - CI (`.github/workflows/test.yaml`) must pass: build, lint, generate drift check, and acceptance tests on Terraform 1.8, 1.12 and the latest minor.
-- Pin GitHub Actions by full commit SHA with the version in a trailing comment (`uses: actions/checkout@<sha> # v7.0.1`). Dependabot (`.github/dependabot.yml`) opens a weekly grouped PR that bumps the SHAs and comments.
+- Keep history linear: update a branch by rebasing onto its base, not by merging, and push with `--force-with-lease`.
+- When pushing follow-up commits, update the PR description and the changelog in the same push. Tick the "CI green" checkbox only after the checks pass. In a stack of PRs, each PR's changelog entries belong on that PR's own branch.
+- Workflow security: trigger on `pull_request`, never `pull_request_target`; grant least-privilege `permissions`; never interpolate event data (PR titles, branch names, bodies) into `run:` steps.
+- Pin every GitHub Action, in every workflow, by full commit SHA with the version in a trailing comment (`uses: actions/checkout@<sha> # v7.0.1`). Dependabot (`.github/dependabot.yml`) opens a weekly grouped PR that bumps the SHAs and comments.
 - Changing `.github/workflows/` over HTTPS requires a GitHub token with the `workflow` scope.
 
 ## Releases
@@ -116,3 +121,5 @@ Versions follow [SemVer](https://semver.org). While the provider is `0.x`, break
 7. Check that the new version appears on the [registry page](https://registry.terraform.io/providers/anapsix/semvers).
 
 To dry-run the release locally: `goreleaser release --snapshot --clean --skip=sign`.
+
+CI does not exercise `release.yaml` or `.goreleaser.yaml`; they only run when a tag is pushed. After changing either, run `goreleaser check` and the snapshot dry-run, and note in the PR that the next release is the first real test.
