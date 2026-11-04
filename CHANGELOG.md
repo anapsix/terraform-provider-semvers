@@ -1,31 +1,25 @@
 ## Unreleased
 
 ### Breaking
-- The provider `ignore_invalid_tags` setting no longer claims to apply to `provider::semvers::sort` and `provider::semvers::pick`; pass the new `ignore_invalid` argument instead, e.g. `provider::semvers::pick(list, "~> 1.2", true)` ([#3])
+- `ignore_invalid_tags` applies only to `semvers_list`, because provider functions never receive provider configuration. Use the new `ignore_invalid` argument of `sort` and `pick` instead ([#3])
 
 ### Added
-- Optional trailing `ignore_invalid` boolean argument (default `false`) for `provider::semvers::sort` and `provider::semvers::pick` ([#3])
-- CI workflow running fmt, vet, build, and acceptance tests against Terraform 1.8, 1.12, and 1.17 on pull requests and pushes to `main` ([#3])
-- CI runs golangci-lint (same version as pre-commit) and fails when `go generate` output (docs, formatted examples) is not committed ([#3])
+- `ignore_invalid` argument for `sort` and `pick` to skip invalid versions ([#3])
+- CI: build, lint, docs drift check, and acceptance tests on Terraform 1.8 through 1.17 ([#3])
 
 ### Fixed
-- `provider::semvers::sort` and `provider::semvers::pick` failed with an internal "Value Conversion Error" when the list contained a `null` element. Null elements are now treated as invalid versions: an error by default, skipped with `ignore_invalid`, matching `semvers_list` ([#3])
-- `semvers_list` silently parsed strictly when the provider `ignore_invalid_tags` value was not known until apply (e.g. derived from a resource attribute), failing plan with a misleading parse error. It now returns an error explaining that the setting must be known at plan time; lists containing only valid strings are unaffected ([#3])
-- `provider::semvers::sort` and `provider::semvers::pick` ignored the provider `ignore_invalid_tags` setting under real Terraform/OpenTofu, because provider-defined functions never receive provider configuration ([#3])
-- Duplicate versions in `semvers_list`, `sort`, and `pick` now keep the first occurrence from the input (stable sort); previously the kept `original` could be any of the duplicates ([#3])
-- `provider::semvers::compare` docs no longer claim it returns `99` on error; it returns a function error ([#3])
+- `sort` and `pick` failing with an internal error on `null` list elements ([#3])
+- `semvers_list` failing plan with a misleading parse error when `ignore_invalid_tags` is not known until apply; it now explains the cause ([#3])
+- Duplicate versions now keep the first occurrence from the input ([#3])
+- `compare` docs no longer mention a `99` error value ([#3])
 
 ### Changed
-- Function errors now point at the offending argument and include the bad value, e.g. `Invalid value for "version_b" parameter: invalid version "blah": invalid semantic version` ([#3])
-- Provider server address for `-debug` mode is now `registry.terraform.io/anapsix/semvers` ([#3])
-- Rename internal `helpers` package to `semverutil`; camelCase variable names; drop redundant parameter defaults and dead code ([#3])
-- Remove HashiCorp copyright headers from files not derived from the provider scaffolding template ([#3])
-- Tests use real `provider` blocks instead of injecting provider config ([#3])
+- Function errors name the offending argument and value ([#3])
+- `-debug` mode uses the `registry.terraform.io/anapsix/semvers` address ([#3])
+- Internal cleanup: package rename, naming, license headers, tests use real `provider` blocks ([#3])
 
 ### Documentation
-- `ignore_invalid_tags` documented as applying to the `semvers_list` data source only; README section on provider aliases and functions rewritten ([#3])
-- Document lenient version parsing (`v` prefix, missing minor/patch parts) ([#3])
-- Add `ignore_invalid` examples for `sort` and `pick`; fix description typos ([#3])
+- Document lenient version parsing and the new `ignore_invalid` argument ([#3])
 
 [#3]: https://github.com/anapsix/terraform-provider-semvers/pull/3
 
