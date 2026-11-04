@@ -54,12 +54,7 @@ go generate ./...               # format examples/ and test/, regenerate docs/
 
 ## Code conventions
 
-- **License headers:** every Go file starts with
-  ```go
-  // Copyright (c) Anastas Dancha
-  // SPDX-License-Identifier: MPL-2.0
-  ```
-  Never remove an existing `Copyright (c) HashiCorp, Inc.` line. Every file that has one started as a copy of the HashiCorp provider scaffolding, however much it has changed since, and MPL-2.0 (section 3.4) forbids removing copyright notices from covered code. A new file copied or adapted from such a file keeps the HashiCorp line too; only files written from scratch get just the author line.
+- **License headers:** every Go file needs one; see [Licensing](#licensing).
 - Go identifiers are camelCase; Terraform-facing names (attributes, parameters) are snake_case.
 - Parse with `semverutil.ParseVersion` / `semverutil.ParseConstraint`, not `semver.New*` directly, so errors carry the offending value.
 - Function errors use `function.NewArgumentFuncError(position, err.Error())`, with each argument parsed separately so the position is known. Don't add generic "Error performing operation" wrappers.
@@ -80,6 +75,28 @@ go generate ./...               # format examples/ and test/, regenerate docs/
 - Function tests start with `tfversion.SkipBelow(tfversion.Version1_8_0)`.
 - Terraform wraps long error lines, so `ExpectError` regexes should use `\s+` between words, e.g. `` `"version_b"\s+parameter:\s+invalid\s+version` ``.
 - For a bug fix, write the failing test first.
+
+## Licensing
+
+The provider is licensed under the [Mozilla Public License 2.0](LICENSE). Large parts of it started as HashiCorp's [provider scaffolding](https://github.com/hashicorp/terraform-provider-scaffolding-framework), which is also MPL-2.0.
+
+- **Every Go file starts with a license header.** Files written from scratch use:
+  ```go
+  // Copyright (c) Anastas Dancha
+  // SPDX-License-Identifier: MPL-2.0
+  ```
+  Files that started from the scaffolding, or from another file that did, also keep HashiCorp's line first:
+  ```go
+  // Copyright (c) HashiCorp, Inc.
+  // Copyright (c) Anastas Dancha
+  // SPDX-License-Identifier: MPL-2.0
+  ```
+- **Never remove or alter an existing copyright notice**, however much the file has changed. MPL-2.0 section 3.4 forbids it. When splitting, renaming or copying a file, carry its notices over to the new file.
+- **When unsure whether a file is derived, keep the notice.** Check its history with `git log --follow` and its first version's header before deciding a file is original.
+- **Copying code from elsewhere:** only from sources under MIT, BSD, Apache-2.0 or MPL-2.0. Keep the original copyright and license notice next to the copied code, and name the source in the PR. Never copy from GPL, AGPL, unlicensed or unknown-license code; ask the maintainer instead.
+- **New dependencies** must use one of the licenses above. Name the dependency and its license in the PR. `go run github.com/google/go-licenses@latest report ./...` lists the licenses of everything the provider links.
+- **Don't edit `LICENSE`** or change the `SPDX-License-Identifier`. Relicensing is the maintainer's decision.
+- Markdown, HCL examples, generated `docs/` and config files need no license header.
 
 ## CHANGELOG
 
