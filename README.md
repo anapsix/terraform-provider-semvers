@@ -34,12 +34,13 @@ Use `provider = semvers.<alias>` on the data source to pick a strict or lenient 
 Terraform and OpenTofu never pass provider configuration to provider functions, so `ignore_invalid_tags` has **no effect** on them. Instead, `sort` and `pick` take an optional trailing `ignore_invalid` argument (default `false`):
 
 ```hcl
-# pick the latest matching dev tag from a mixed image tag list
-reverse(provider::semvers::pick(
+# pick the latest matching dev tag from a mixed image tag list;
+# try() returns null instead of failing when nothing matches
+try(reverse(provider::semvers::pick(
   ["develop-latest", "1.2.3-dev.1", "1.2.3-dev.2", "0.1.0"],
   "~> 1.2.3-dev",
   true,
-))[0]
+))[0], null)
 # => "1.2.3-dev.2"
 
 provider::semvers::sort(["develop-latest", "0.2.1", "0.1.0"], true)
