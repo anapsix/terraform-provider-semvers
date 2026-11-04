@@ -89,7 +89,7 @@ Update `CHANGELOG.md` in the same PR for every user-visible change (behavior, sc
 ## Pull requests
 
 - Branch from `main` (`fix/...`, `feat/...`, `chore/...`), never commit directly to `main`.
-- PR description: a summary of user-visible changes, a **Breaking change** section when relevant, and a test plan checklist. Note when a PR is stacked on another.
+- PR description: a summary of user-visible changes, a **Breaking change** section when relevant, and a test plan checklist. Note when a PR depends on another one, unless the PRs are in a GitHub stack, which already shows the dependency.
 - CI (`.github/workflows/test.yaml`) must pass: build, lint, generate drift check, and acceptance tests on Terraform 1.8, 1.12 and the latest minor.
 - Pin GitHub Actions by full commit SHA with the version in a trailing comment (`uses: actions/checkout@<sha> # v7.0.1`).
 - Changing `.github/workflows/` over HTTPS requires a GitHub token with the `workflow` scope.
