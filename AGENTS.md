@@ -35,8 +35,9 @@ A Terraform provider built on [terraform-plugin-framework](https://developer.has
 go build ./...                  # build
 go vet ./...                    # vet
 gofmt -l .                      # must print nothing
-go test ./...                   # unit tests (acceptance tests skip without TF_ACC)
-TF_ACC=1 go test ./...          # acceptance tests; needs terraform >= 1.8 in PATH
+go test ./internal/semverutil/  # pure Go unit tests, no terraform needed
+go test ./...                   # also runs function tests; needs terraform >= 1.8 in PATH
+TF_ACC=1 go test ./...          # everything, including semvers_list acceptance tests
 TF_ACC=1 TF_ACC_TERRAFORM_VERSION=1.8.5 go test ./internal/provider/   # oldest supported Terraform
 golangci-lint run ./...         # lint (see version note below)
 go generate ./...               # format examples/ and test/, regenerate docs/
@@ -64,7 +65,7 @@ go generate ./...               # format examples/ and test/, regenerate docs/
 ### Adding or changing a provider function
 
 1. Add `internal/provider/function_<name>.go` and register it in `semversProvider.Functions`.
-2. Add `internal/provider/function_<name>_test.go` covering known values, invalid input, null/wrong-type arguments, `null` list elements, and `ignore_invalid` passed as `true` and `false` where the function accepts it.
+2. Add `internal/provider/function_<name>_test.go` covering known values, invalid input, null/wrong-type arguments, `null` list elements, and `ignore_invalid` passed as `true`, `false` and `null` (rejected) where the function accepts it.
 3. Add `examples/functions/<name>/function.tf`.
 4. Update the function list in `README.md` and the provider `Description` in `provider.go`.
 5. Run `go generate ./...` and commit `docs/`.
@@ -121,6 +122,7 @@ Update `CHANGELOG.md` in the same PR for every user-visible change (behavior, sc
 - Keep history linear: update a branch by rebasing onto its base, not by merging.
 - Force-push rewritten branches only with a lease pinned to the commit you last saw on the remote: `git push --force-with-lease=<branch>:<old-sha> origin <branch>`. A bare `--force-with-lease` can still overwrite commits that a fetch updated without you noticing; never use plain `--force`.
 - When a branch lower in a stack is rewritten, rebase every PR above it onto it and force-push each the same way. Before pushing, check the result with `git diff <old-tip> HEAD`: it should show only the changes you meant to make.
+- After a lower PR is squash-merged, rebase the next branch with `git rebase --onto origin/main <old-lower-tip> <branch>`. A plain `git rebase origin/main` replays the lower PR's commits on top of their squash commit and conflicts.
 - When pushing follow-up commits, update the PR description and the changelog in the same push. Tick the "CI green" checkbox only after the checks pass. In a stack of PRs, each PR's changelog entries belong on that PR's own branch.
 - Workflow security: trigger on `pull_request`, never `pull_request_target`; grant least-privilege `permissions`; never interpolate event data (PR titles, branch names, bodies) into `run:` steps.
 - Pin every GitHub Action, in every workflow, by full commit SHA with the version in a trailing comment (`uses: actions/checkout@<sha> # v7.0.1`). Dependabot (`.github/dependabot.yml`) opens a weekly grouped PR that bumps the SHAs and comments.

@@ -10,4 +10,5 @@ updates:
       patterns:
       - '*'
   commit-message:
-    prefix: '[chore]'
+    # trailing space: without it Dependabot appends a colon after the closing bracket
+    prefix: '[chore] '
