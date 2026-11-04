@@ -75,11 +75,12 @@ go generate ./...               # format examples/ and test/, regenerate docs/
 
 ## CHANGELOG
 
-Update `CHANGELOG.md` in the same PR for every user-visible change (behavior, schema, docs, dependencies, CI that affects contributors). Purely internal refactors may be grouped into one `Changed` line.
+Update `CHANGELOG.md` in the same PR for every user-visible change (behavior, schema, docs, dependencies, CI that affects contributors).
 
 - Add entries under `## Unreleased` at the top. Never edit a released section, except to fix broken links.
 - Use these subsections, in this order, and only the ones needed: `### Breaking`, `### Added`, `### Fixed`, `### Changed`, `### Documentation`.
-- One line per change, written for provider users: what changed and how it affects them. Wrap code, attributes and function names in backticks.
+- One short line per change, written for provider users: what changed and how it affects them. Don't restate the code change (no implementation details, examples or error texts); the PR has those. Wrap code, attributes and function names in backticks.
+- Group internal refactors, tests and naming changes into a single `Internal cleanup: ...` line per PR.
 - End each entry with the PR or issue reference, e.g. `([#3])`, and define the link once below the section it first appears in:
   ```markdown
   [#3]: https://github.com/anapsix/terraform-provider-semvers/pull/3
