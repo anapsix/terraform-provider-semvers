@@ -85,3 +85,48 @@ func TestAccDataSource_IgnoreInvalidTags(t *testing.T) {
 		},
 	})
 }
+
+// ignore_invalid_tags can be unknown during plan (e.g. derived from a resource).
+// The data source must not silently fall back to strict parsing in that case.
+func TestAccDataSource_IgnoreInvalidTagsUnknown(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `resource "terraform_data" "flag" {
+            input = true
+        }
+
+        provider "semvers" {
+            ignore_invalid_tags = terraform_data.flag.output
+        }
+
+        data "semvers_list" "valid_only" {
+            list = ["0.2.0", "0.1.0"]
+        }`,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue("data.semvers_list.valid_only", tfjsonpath.New("last").AtMapKey("version"), knownvalue.StringExact("0.2.0")),
+				},
+			},
+			{
+				Config: `resource "terraform_data" "flag" {
+            input = true
+        }
+
+        resource "terraform_data" "flag2" {
+            input = true
+        }
+
+        provider "semvers" {
+            ignore_invalid_tags = terraform_data.flag2.output
+        }
+
+        data "semvers_list" "with_invalid" {
+            list = ["develop-latest", "0.2.0", "0.1.0"]
+        }`,
+				ExpectError: regexp.MustCompile(`ignore_invalid_tags\s+is\s+not\s+known`),
+			},
+		},
+	})
+}

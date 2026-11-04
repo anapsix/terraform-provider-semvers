@@ -47,7 +47,7 @@ func (p *semversProvider) Schema(_ context.Context, _ provider.SchemaRequest, re
 			"ignore_invalid_tags": schema.BoolAttribute{
 				Optional:            true,
 				Description:         "When true, invalid semver strings in list inputs are skipped instead of returning an error. Applies to the `semvers_list` data source only.",
-				MarkdownDescription: "When true, invalid semver strings in list inputs are skipped instead of returning an error. Applies to the `semvers_list` data source only; provider functions cannot read provider configuration, so pass `ignore_invalid` to `sort` / `pick` instead. Skipped tags are logged at INFO level when `TF_LOG` is enabled. Defaults to `false`.",
+				MarkdownDescription: "When true, invalid semver strings in list inputs are skipped instead of returning an error. Applies to the `semvers_list` data source only; provider functions cannot read provider configuration, so pass `ignore_invalid` to `sort` / `pick` instead. Skipped tags are logged at INFO level when `TF_LOG` is enabled. If the value is not known until apply (e.g. derived from a resource attribute), `semvers_list` returns an error when the list contains invalid strings. Defaults to `false`.",
 			},
 		},
 	}
@@ -74,10 +74,8 @@ func (p *semversProvider) Configure(ctx context.Context, req provider.ConfigureR
 	}
 
 	p.config = &ProviderConfig{
-		IgnoreInvalidTags: false,
-	}
-	if !config.IgnoreInvalidTags.IsNull() && !config.IgnoreInvalidTags.IsUnknown() {
-		p.config.IgnoreInvalidTags = config.IgnoreInvalidTags.ValueBool()
+		IgnoreInvalidTags:        config.IgnoreInvalidTags.ValueBool(),
+		IgnoreInvalidTagsUnknown: config.IgnoreInvalidTags.IsUnknown(),
 	}
 
 	resp.DataSourceData = p.config

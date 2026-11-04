@@ -6,8 +6,10 @@
 ### Added
 - Optional trailing `ignore_invalid` boolean argument (default `false`) for `provider::semvers::sort` and `provider::semvers::pick` ([#3])
 - CI workflow running fmt, vet, build, and acceptance tests against Terraform 1.8, 1.12, and 1.17 on pull requests and pushes to `main` ([#3])
+- CI runs golangci-lint (same version as pre-commit) and fails when `go generate` output (docs, formatted examples) is not committed ([#3])
 
 ### Fixed
+- `semvers_list` silently parsed strictly when the provider `ignore_invalid_tags` value was not known until apply (e.g. derived from a resource attribute), failing plan with a misleading parse error. It now returns an error explaining that the setting must be known at plan time; lists containing only valid strings are unaffected ([#3])
 - `provider::semvers::sort` and `provider::semvers::pick` ignored the provider `ignore_invalid_tags` setting under real Terraform/OpenTofu, because provider-defined functions never receive provider configuration ([#3])
 - Duplicate versions in `semvers_list`, `sort`, and `pick` now keep the first occurrence from the input (stable sort); previously the kept `original` could be any of the duplicates ([#3])
 - `provider::semvers::compare` docs no longer claim it returns `99` on error; it returns a function error ([#3])

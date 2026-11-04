@@ -5,6 +5,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -17,7 +18,8 @@ import (
 
 // Data Source definition
 type semversListDataSource struct {
-	ignoreInvalidTags bool
+	ignoreInvalidTags        bool
+	ignoreInvalidTagsUnknown bool
 }
 
 var versionAttributes = map[string]schema.Attribute{
@@ -88,6 +90,7 @@ func (d *semversListDataSource) Schema(ctx context.Context, req datasource.Schem
 func (d *semversListDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	providerConfig := providerConfigFromDataSourceConfigure(req, resp)
 	d.ignoreInvalidTags = providerConfig.IgnoreInvalidTags
+	d.ignoreInvalidTagsUnknown = providerConfig.IgnoreInvalidTagsUnknown
 }
 
 func (d *semversListDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -112,6 +115,18 @@ func (d *semversListDataSource) Read(ctx context.Context, req datasource.ReadReq
 	// Parse and sort the semver strings
 	semverStrings := convertTerraformListToStringSlice(model.List)
 	semvers, err := semverutil.StringsToSemvers(ctx, semverStrings, d.ignoreInvalidTags)
+	var vErr *semverutil.InvalidVersionError
+	if d.ignoreInvalidTagsUnknown && errors.As(err, &vErr) {
+		// Strict parsing failed, and whether invalid strings may be skipped is not
+		// known yet. A list of only valid strings parses the same either way.
+		resp.Diagnostics.AddError(
+			"Provider setting ignore_invalid_tags is not known",
+			"The list contains an invalid semver string ("+vErr.Error()+"), and whether to skip it "+
+				"depends on the provider ignore_invalid_tags setting, which is not known until apply. "+
+				"Set ignore_invalid_tags to a value known at plan time, such as a literal or an input variable.",
+		)
+		return
+	}
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error parsing semver list",
