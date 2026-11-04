@@ -115,6 +115,8 @@ func TestAccDataSource_IgnoreInvalidTagsUnknown(t *testing.T) {
             input = true
         }
 
+        # flag2 is new in this step, so its output is unknown during plan;
+        # flag already exists from step 1 and would be known.
         resource "terraform_data" "flag2" {
             input = true
         }

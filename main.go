@@ -1,3 +1,7 @@
+// Copyright (c) HashiCorp, Inc.
+// Copyright (c) Anastas Dancha
+// SPDX-License-Identifier: MPL-2.0
+
 // Run "go generate" to format example terraform files and generate the docs for the registry/website
 
 // If you do not have terraform installed, you can remove the formatting command, but its suggested to

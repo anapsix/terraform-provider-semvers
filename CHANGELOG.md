@@ -17,11 +17,18 @@
 - Function errors name the offending argument and value ([#3])
 - `-debug` mode uses the `registry.terraform.io/anapsix/semvers` address ([#3])
 - Internal cleanup: package rename, naming, tests use real `provider` blocks ([#3])
+- Constraint errors no longer repeat the constraint ([#4])
+- Internal cleanup: `semverutil` helpers, CI, missing license header in `main.go` ([#4])
+- Pin all GitHub Actions to commit SHAs, kept up to date by Dependabot ([#4])
+- Bump `actions/setup-go` v6.5.0 -> v7.0.0 and `goreleaser/goreleaser-action` v7.2.3 -> v7.3.0 ([#4])
 
 ### Documentation
 - Document lenient version parsing and the new `ignore_invalid` argument ([#3])
+- Add `AGENTS.md` with contributor and release instructions ([#4])
+- README: clarify deduplication of build metadata, safer `pick` example ([#4])
 
 [#3]: https://github.com/anapsix/terraform-provider-semvers/pull/3
+[#4]: https://github.com/anapsix/terraform-provider-semvers/pull/4
 
 ## 0.8.1
 
