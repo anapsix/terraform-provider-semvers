@@ -98,13 +98,32 @@ Update `CHANGELOG.md` in the same PR for every user-visible change (behavior, sc
 ## Pull requests
 
 - Branch from `main` (`fix/...`, `feat/...`, `chore/...`). Never commit directly to `main`; the only exception is the `version X.Y.Z` release commit (see [Releases](#releases)).
-- PR description: a summary of user-visible changes, a **Breaking change** section when relevant, and a test plan checklist. Note when a PR depends on another one, unless the PRs are in a GitHub stack, which already shows the dependency.
+- Note when a PR depends on another one, unless the PRs are in a GitHub stack, which already shows the dependency.
 - CI (`.github/workflows/test.yaml`) must pass: build, lint, generate drift check, and acceptance tests on Terraform 1.8, 1.12 and the latest minor.
 - Keep history linear: update a branch by rebasing onto its base, not by merging, and push with `--force-with-lease`.
 - When pushing follow-up commits, update the PR description and the changelog in the same push. Tick the "CI green" checkbox only after the checks pass. In a stack of PRs, each PR's changelog entries belong on that PR's own branch.
 - Workflow security: trigger on `pull_request`, never `pull_request_target`; grant least-privilege `permissions`; never interpolate event data (PR titles, branch names, bodies) into `run:` steps.
 - Pin every GitHub Action, in every workflow, by full commit SHA with the version in a trailing comment (`uses: actions/checkout@<sha> # v7.0.1`). Dependabot (`.github/dependabot.yml`) opens a weekly grouped PR that bumps the SHAs and comments.
 - Changing `.github/workflows/` over HTTPS requires a GitHub token with the `workflow` scope.
+
+### PR descriptions
+
+- **Start with a bullet list of the high-level changes.** No heading or intro sentence before it, and no implementation details; the diff has those.
+- Keep each bullet to one short, plain sentence about the outcome ("`sort` and `pick` handle `null` list elements"), not the mechanism ("read list elements as `types.String`").
+- Put user-visible changes first and the most important first. Fold internal refactors, tests and naming into one `Internal cleanup: ...` bullet.
+- Aim for at most about 7 bullets; merge related changes rather than listing each one.
+- After the bullets, add short sections only when they apply:
+  - **Breaking change:** what users must change, in one or two sentences.
+  - **Notes:** anything reviewers can't see in CI, e.g. changes that only run at release time.
+  - **Test plan:** a checklist of what was run.
+- Describe the PR as it is now, not how it got there. When pushing follow-up commits, rewrite the bullets instead of appending "review follow-ups" sections.
+- Avoid file paths, function names and code blocks unless they are what users touch (attributes, function arguments). One short usage example is fine for a new feature or a breaking change.
+
+### Commit messages
+
+- Subject: `[type] short summary`, lowercase, imperative, no trailing period, at most about 72 characters. Types used here: `[feat]`, `[fix]`, `[chore]`, `[docs]`, `[ci]`. Release commits stay `version X.Y.Z`.
+- Body (optional): a few short bullets of the high-level changes, plus the why when it isn't obvious. Don't list every file or restate the diff.
+- One logical change per commit; split unrelated changes rather than describing them all in one subject.
 
 ## Releases
 
