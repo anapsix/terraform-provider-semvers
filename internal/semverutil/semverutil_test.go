@@ -4,14 +4,25 @@ import (
 	"context"
 	"regexp"
 	"testing"
+
+	"github.com/Masterminds/semver/v3"
 )
+
+func mustConstraint(t *testing.T, s string) *semver.Constraints {
+	t.Helper()
+	c, err := ParseConstraint(s)
+	if err != nil {
+		t.Fatalf("ParseConstraint(%q): %v", s, err)
+	}
+	return c
+}
 
 func TestPickFromSemverStrings_ignoreInvalid(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
 
-	got, err := PickFromSemverStrings(ctx, []string{"develop-latest", "1.2.3-dev.1", "0.1.0"}, "~> 1.2.3-dev", true)
+	got, err := PickFromSemverStrings(ctx, []string{"develop-latest", "1.2.3-dev.1", "0.1.0"}, mustConstraint(t, "~> 1.2.3-dev"), true)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -32,7 +43,7 @@ func TestPickFromSemverStrings_strictInvalid(t *testing.T) {
 
 	ctx := context.Background()
 
-	_, err := PickFromSemverStrings(ctx, []string{"develop-latest", "1.2.3-dev.1"}, "~> 1.2.3-dev", false)
+	_, err := PickFromSemverStrings(ctx, []string{"develop-latest", "1.2.3-dev.1"}, mustConstraint(t, "~> 1.2.3-dev"), false)
 	if err == nil {
 		t.Fatal("expected error for invalid semver tag, got nil")
 	}

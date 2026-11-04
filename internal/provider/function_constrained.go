@@ -52,12 +52,16 @@ func (r SemversConstrainedFunction) Run(ctx context.Context, req function.RunReq
 		return
 	}
 
-	result, err := semverutil.Constrained(version, constraint)
-
+	v, err := semverutil.ParseVersion(version)
 	if err != nil {
-		resp.Error = function.NewArgumentFuncError(errorPosition(err, 0, 1), err.Error())
+		resp.Error = function.NewArgumentFuncError(0, err.Error())
+		return
+	}
+	c, err := semverutil.ParseConstraint(constraint)
+	if err != nil {
+		resp.Error = function.NewArgumentFuncError(1, err.Error())
 		return
 	}
 
-	resp.Error = function.ConcatFuncErrors(resp.Error, resp.Result.Set(ctx, result))
+	resp.Error = resp.Result.Set(ctx, c.Check(v))
 }

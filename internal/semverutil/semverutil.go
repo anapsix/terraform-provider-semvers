@@ -37,7 +37,8 @@ func (e *InvalidConstraintError) Unwrap() error {
 	return e.Err
 }
 
-func parseVersion(s string) (*semver.Version, error) {
+// ParseVersion parses s as a semver, returning an *InvalidVersionError on failure.
+func ParseVersion(s string) (*semver.Version, error) {
 	v, err := semver.NewVersion(s)
 	if err != nil {
 		return nil, &InvalidVersionError{Version: s, Err: err}
@@ -45,44 +46,14 @@ func parseVersion(s string) (*semver.Version, error) {
 	return v, nil
 }
 
-func parseConstraint(s string) (*semver.Constraints, error) {
+// ParseConstraint parses s as a semver constraint, returning an
+// *InvalidConstraintError on failure.
+func ParseConstraint(s string) (*semver.Constraints, error) {
 	c, err := semver.NewConstraint(s)
 	if err != nil {
 		return nil, &InvalidConstraintError{Constraint: s, Err: err}
 	}
 	return c, nil
-}
-
-// Compare compares this version to another one. It returns -1, 0, or 1 if
-// the version smaller, equal, or larger than the other version.
-//
-// Versions are compared by X.Y.Z. Build metadata is ignored. Prerelease is
-// lower than the version without a prerelease. Compare always takes into account
-// prereleases. If you want to work with ranges using typical range syntaxes that
-// skip prereleases if the range is not looking for them use constraints.
-func Compare(a string, b string) (int, error) {
-	versionA, err := parseVersion(a)
-	if err != nil {
-		return 0, err
-	}
-	versionB, err := parseVersion(b)
-	if err != nil {
-		return 0, err
-	}
-	return versionA.Compare(versionB), nil
-}
-
-// Equals reports whether two versions are equal, ignoring build metadata.
-func Equals(a string, b string) (bool, error) {
-	versionA, err := parseVersion(a)
-	if err != nil {
-		return false, err
-	}
-	versionB, err := parseVersion(b)
-	if err != nil {
-		return false, err
-	}
-	return versionA.Equal(versionB), nil
 }
 
 // RemoveDups removes duplicate versions from a list of semver.Version pointers
@@ -118,7 +89,7 @@ func StringsToSemvers(ctx context.Context, list []string, ignoreInvalid bool) ([
 	var skipped []string
 
 	for _, raw := range list {
-		v, err := parseVersion(raw)
+		v, err := ParseVersion(raw)
 		if err != nil {
 			if ignoreInvalid {
 				skipped = append(skipped, raw)
@@ -153,12 +124,7 @@ func StringsToStrings(ctx context.Context, list []string, ignoreInvalid bool) ([
 	return SemversToStrings(semvers), nil
 }
 
-func PickFromSemverStrings(ctx context.Context, list []string, constraint string, ignoreInvalid bool) ([]string, error) {
-	c, err := parseConstraint(constraint)
-	if err != nil {
-		return nil, err
-	}
-
+func PickFromSemverStrings(ctx context.Context, list []string, c *semver.Constraints, ignoreInvalid bool) ([]string, error) {
 	semvers, err := StringsToSemvers(ctx, list, ignoreInvalid)
 	if err != nil {
 		return nil, err
@@ -172,18 +138,4 @@ func PickFromSemverStrings(ctx context.Context, list []string, constraint string
 	}
 
 	return filtered, nil
-}
-
-func Constrained(version string, constraint string) (bool, error) {
-	c, err := parseConstraint(constraint)
-	if err != nil {
-		return false, err
-	}
-
-	v, err := parseVersion(version)
-	if err != nil {
-		return false, err
-	}
-
-	return c.Check(v), nil
 }

@@ -64,12 +64,17 @@ func (r *SemversPickFunction) Run(ctx context.Context, req function.RunRequest, 
 		return
 	}
 
-	filtered, err := semverutil.PickFromSemverStrings(ctx, versionStrings(versions), constraint, ignoreInvalidTags)
-
+	c, err := semverutil.ParseConstraint(constraint)
 	if err != nil {
-		resp.Error = function.NewArgumentFuncError(errorPosition(err, 0, 1), err.Error())
+		resp.Error = function.NewArgumentFuncError(1, err.Error())
 		return
 	}
 
-	resp.Error = function.ConcatFuncErrors(resp.Result.Set(ctx, filtered))
+	filtered, err := semverutil.PickFromSemverStrings(ctx, versionStrings(versions), c, ignoreInvalidTags)
+	if err != nil {
+		resp.Error = function.NewArgumentFuncError(0, err.Error())
+		return
+	}
+
+	resp.Error = resp.Result.Set(ctx, filtered)
 }

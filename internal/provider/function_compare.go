@@ -60,12 +60,16 @@ func (r SemversCompareFunction) Run(ctx context.Context, req function.RunRequest
 		return
 	}
 
-	result, err := semverutil.Compare(versionA, versionB)
-
+	a, err := semverutil.ParseVersion(versionA)
 	if err != nil {
-		resp.Error = function.NewArgumentFuncError(versionPairPosition(err, versionA), err.Error())
+		resp.Error = function.NewArgumentFuncError(0, err.Error())
+		return
+	}
+	b, err := semverutil.ParseVersion(versionB)
+	if err != nil {
+		resp.Error = function.NewArgumentFuncError(1, err.Error())
 		return
 	}
 
-	resp.Error = function.ConcatFuncErrors(resp.Error, resp.Result.Set(ctx, result))
+	resp.Error = resp.Result.Set(ctx, a.Compare(b))
 }
