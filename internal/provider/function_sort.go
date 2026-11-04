@@ -7,7 +7,7 @@ package provider
 import (
 	"context"
 
-	shelper "github.com/anapsix/terraform-provider-semvers/internal/helpers"
+	"github.com/anapsix/terraform-provider-semvers/internal/semverutil"
 	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -16,9 +16,7 @@ var (
 	_ function.Function = &SemversSortFunction{}
 )
 
-type SemversSortFunction struct {
-	provider *semversProvider
-}
+type SemversSortFunction struct{}
 
 func NewSemversSortFunction() function.Function {
 	return &SemversSortFunction{}
@@ -31,7 +29,7 @@ func (r *SemversSortFunction) Metadata(_ context.Context, req function.MetadataR
 func (r *SemversSortFunction) Definition(_ context.Context, _ function.DefinitionRequest, resp *function.DefinitionResponse) {
 	resp.Definition = function.Definition{
 		Summary:             "Returns sorted list of semver strings",
-		MarkdownDescription: "Returns sorted and deduped list of semver strings. When the provider `ignore_invalid_tags` setting is true, invalid semver strings in the list are skipped and logged at INFO level when TF_LOG is enabled.",
+		MarkdownDescription: "Returns sorted and deduped list of semver strings. Pass `true` as the optional second argument to skip invalid semver strings in the list. The provider `ignore_invalid_tags` setting does not apply to functions.",
 		Parameters: []function.Parameter{
 			function.ListParameter{
 				ElementType:         types.StringType,
@@ -39,6 +37,7 @@ func (r *SemversSortFunction) Definition(_ context.Context, _ function.Definitio
 				MarkdownDescription: "List of semver strings",
 			},
 		},
+		VariadicParameter: ignoreInvalidParameter,
 		Return: function.ListReturn{
 			ElementType: types.StringType,
 		},
@@ -46,23 +45,24 @@ func (r *SemversSortFunction) Definition(_ context.Context, _ function.Definitio
 }
 
 func (r *SemversSortFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
-	var versions []string
+	var versions []types.String
+	var opts []bool
 
-	resp.Error = function.ConcatFuncErrors(req.Arguments.Get(ctx, &versions))
-
+	resp.Error = function.ConcatFuncErrors(req.Arguments.Get(ctx, &versions, &opts))
 	if resp.Error != nil {
 		return
 	}
 
-	ignoreInvalidTags := false
-	if r.provider != nil {
-		ignoreInvalidTags = r.provider.ignoreInvalidTags()
+	ignoreInvalidTags, funcErr := ignoreInvalidFromArgs(opts, 1)
+	if funcErr != nil {
+		resp.Error = funcErr
+		return
 	}
 
-	semvers, err := shelper.StringsToStrings(ctx, versions, ignoreInvalidTags)
+	semvers, err := semverutil.StringsToStrings(ctx, versionStrings(versions), ignoreInvalidTags)
 
 	if err != nil {
-		resp.Error = function.ConcatFuncErrors(resp.Error, function.NewFuncError("Error performing operation: "+err.Error()))
+		resp.Error = function.NewArgumentFuncError(0, err.Error())
 		return
 	}
 

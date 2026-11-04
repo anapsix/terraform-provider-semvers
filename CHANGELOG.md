@@ -1,5 +1,28 @@
 ## Unreleased
 
+### Breaking
+- `ignore_invalid_tags` applies only to `semvers_list`, because provider functions never receive provider configuration. Use the new `ignore_invalid` argument of `sort` and `pick` instead ([#3])
+
+### Added
+- `ignore_invalid` argument for `sort` and `pick` to skip invalid versions ([#3])
+- CI: build, lint, docs drift check, and acceptance tests on Terraform 1.8 through 1.17 ([#3])
+
+### Fixed
+- `sort` and `pick` failing with an internal error on `null` list elements ([#3])
+- `semvers_list` failing plan with a misleading parse error when `ignore_invalid_tags` is not known until apply; it now explains the cause ([#3])
+- `semvers_list` keeps the first occurrence of duplicate versions in `original` ([#3])
+- `compare` docs no longer mention a `99` error value ([#3])
+
+### Changed
+- Function errors name the offending argument and value ([#3])
+- `-debug` mode uses the `registry.terraform.io/anapsix/semvers` address ([#3])
+- Internal cleanup: package rename, naming, tests use real `provider` blocks ([#3])
+
+### Documentation
+- Document lenient version parsing and the new `ignore_invalid` argument ([#3])
+
+[#3]: https://github.com/anapsix/terraform-provider-semvers/pull/3
+
 ## 0.8.1
 
 ### Changed
@@ -31,6 +54,8 @@
 
 ### Documentation
 - Provider configuration, provider alias limitations with functions, and OpenTofu differences
+
+[#2]: https://github.com/anapsix/terraform-provider-semvers/issues/2
 
 ## 0.7.1
 - updating go modules

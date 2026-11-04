@@ -3,12 +3,12 @@
 page_title: "semvers_list Data Source - semvers"
 subcategory: ""
 description: |-
-  Parses and sorts a list of semver strings.
+  Parses, sorts and deduplicates a list of semver strings. Invalid strings cause an error, unless the provider sets ignore_invalid_tags = true, which skips them.
 ---
 
 # semvers_list (Data Source)
 
-Parses and sorts a list of semver strings.
+Parses, sorts and deduplicates a list of semver strings. Invalid strings cause an error, unless the provider sets `ignore_invalid_tags = true`, which skips them.
 
 ## Example Usage
 

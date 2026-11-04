@@ -5,6 +5,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -12,12 +13,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	shelper "github.com/anapsix/terraform-provider-semvers/internal/helpers"
+	"github.com/anapsix/terraform-provider-semvers/internal/semverutil"
 )
 
 // Data Source definition
 type semversListDataSource struct {
-	ignoreInvalidTags bool
+	ignoreInvalidTags        bool
+	ignoreInvalidTagsUnknown bool
 }
 
 var versionAttributes = map[string]schema.Attribute{
@@ -57,7 +59,7 @@ func (d *semversListDataSource) Metadata(ctx context.Context, req datasource.Met
 
 func (d *semversListDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Parses and sorts a list of semver strings.",
+		Description: "Parses, sorts and deduplicates a list of semver strings. Invalid strings cause an error, unless the provider sets `ignore_invalid_tags = true`, which skips them.",
 		Attributes: map[string]schema.Attribute{
 			"list": schema.ListAttribute{
 				Description: "Original list of semver strings.",
@@ -88,6 +90,7 @@ func (d *semversListDataSource) Schema(ctx context.Context, req datasource.Schem
 func (d *semversListDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	providerConfig := providerConfigFromDataSourceConfigure(req, resp)
 	d.ignoreInvalidTags = providerConfig.IgnoreInvalidTags
+	d.ignoreInvalidTagsUnknown = providerConfig.IgnoreInvalidTagsUnknown
 }
 
 func (d *semversListDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -111,7 +114,19 @@ func (d *semversListDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	// Parse and sort the semver strings
 	semverStrings := convertTerraformListToStringSlice(model.List)
-	semvers, err := shelper.StringsToSemvers(ctx, semverStrings, d.ignoreInvalidTags)
+	semvers, err := semverutil.StringsToSemvers(ctx, semverStrings, d.ignoreInvalidTags)
+	var vErr *semverutil.InvalidVersionError
+	if d.ignoreInvalidTagsUnknown && errors.As(err, &vErr) {
+		// Strict parsing failed, and whether invalid strings may be skipped is not
+		// known yet. A list of only valid strings parses the same either way.
+		resp.Diagnostics.AddError(
+			"Provider setting ignore_invalid_tags is not known",
+			"The list contains an invalid semver string ("+vErr.Error()+"), and whether to skip it "+
+				"depends on the provider ignore_invalid_tags setting, which is not known until apply. "+
+				"Set ignore_invalid_tags to a value known at plan time, such as a literal or an input variable.",
+		)
+		return
+	}
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error parsing semver list",

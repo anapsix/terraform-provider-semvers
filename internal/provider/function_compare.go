@@ -7,7 +7,7 @@ package provider
 import (
 	"context"
 
-	shelper "github.com/anapsix/terraform-provider-semvers/internal/helpers"
+	"github.com/anapsix/terraform-provider-semvers/internal/semverutil"
 	"github.com/hashicorp/terraform-plugin-framework/function"
 )
 
@@ -33,21 +33,16 @@ func (r SemversCompareFunction) Definition(_ context.Context, _ function.Definit
     <li><code>-1</code> if smaller</li>
     <li><code>0</code> if equals</li>
     <li><code>1</code> if greater</li>
-    <li><code>99</code> if error</li>
     </ul>
     <br>~> **NOTE:** Versions are compared by X.Y.Z. Build metadata is ignored. Prerelease is
     lower than the version without a prerelease. Compare always takes into account
     prereleases. See [Masterminds/semver](https://github.com/Masterminds/semver).`,
 		Parameters: []function.Parameter{
 			function.StringParameter{
-				AllowNullValue:      false,
-				AllowUnknownValues:  false,
 				Name:                "version_a",
 				MarkdownDescription: "Semver string version used as base for comparison",
 			},
 			function.StringParameter{
-				AllowNullValue:      false,
-				AllowUnknownValues:  false,
 				Name:                "version_b",
 				MarkdownDescription: "Semver string version to compare to `version_a`",
 			},
@@ -57,21 +52,24 @@ func (r SemversCompareFunction) Definition(_ context.Context, _ function.Definit
 }
 
 func (r SemversCompareFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
-	var version_a string
-	var version_b string
-	var compare_results int
+	var versionA string
+	var versionB string
 
-	resp.Error = function.ConcatFuncErrors(req.Arguments.Get(ctx, &version_a, &version_b))
+	resp.Error = function.ConcatFuncErrors(req.Arguments.Get(ctx, &versionA, &versionB))
 	if resp.Error != nil {
 		return
 	}
 
-	compare_results, err := shelper.Compare(version_a, version_b)
-
-	if err != nil || compare_results == 99 {
-		resp.Error = function.ConcatFuncErrors(resp.Error, function.NewFuncError("Error performing operation: "+err.Error()))
+	a, err := semverutil.ParseVersion(versionA)
+	if err != nil {
+		resp.Error = function.NewArgumentFuncError(0, err.Error())
+		return
+	}
+	b, err := semverutil.ParseVersion(versionB)
+	if err != nil {
+		resp.Error = function.NewArgumentFuncError(1, err.Error())
 		return
 	}
 
-	resp.Error = function.ConcatFuncErrors(resp.Error, resp.Result.Set(ctx, compare_results))
+	resp.Error = resp.Result.Set(ctx, a.Compare(b))
 }
