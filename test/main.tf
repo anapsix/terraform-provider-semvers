@@ -124,6 +124,10 @@ output "semvers_function_sorted" {
   value = local.sorted_by_function
 }
 
+output "semvers_function_picked_ignore_invalid" {
+  value = provider::semvers::pick(concat(local.versions, ["develop-latest"]), "~> 0.9", true)
+}
+
 output "semvers_function_picked" {
   value = local.picked_by_function
 }

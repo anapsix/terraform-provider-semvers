@@ -40,3 +40,8 @@ locals {
 output "semvers_list_sorted_versions" {
   value = local.sorted_by_function
 }
+
+# skip strings that are not valid semvers
+output "semvers_list_sorted_ignore_invalid" {
+  value = provider::semvers::sort(concat(local.versions, ["develop-latest"]), true)
+}

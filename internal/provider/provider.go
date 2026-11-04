@@ -1,4 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
 // Copyright (c) Anastas Dancha
 // SPDX-License-Identifier: MPL-2.0
 
@@ -36,13 +35,6 @@ type semversProvider struct {
 	config  *ProviderConfig
 }
 
-func (p *semversProvider) ignoreInvalidTags() bool {
-	if p.config == nil {
-		return false
-	}
-	return p.config.IgnoreInvalidTags
-}
-
 func (p *semversProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "semvers"
 	resp.Version = p.version
@@ -50,12 +42,12 @@ func (p *semversProvider) Metadata(ctx context.Context, req provider.MetadataReq
 
 func (p *semversProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Implements `semvers_list` data source, `compare`, `constrained`, `equals`, `sort` and `pick` provider function. All functionality is based on `github.com/Masterminds/semver/v3`. Usage of provider functions requires Terraform version 1.8 and above.",
+		Description: "Implements `semvers_list` data source, `compare`, `constrained`, `equals`, `sort` and `pick` provider function. All functionality is based on `github.com/Masterminds/semver/v3`. Usage of provider functions requires Terraform version 1.8 and above. Version strings are parsed leniently: a leading `v` and missing minor or patch parts are accepted, so `v1.2` is read as `1.2.0`.",
 		Attributes: map[string]schema.Attribute{
 			"ignore_invalid_tags": schema.BoolAttribute{
 				Optional:            true,
-				Description:         "When true, invalid semver strings in list inputs are skipped instead of returning an error. Applies to `semvers_list`, `sort`, and `pick`.",
-				MarkdownDescription: "When true, invalid semver strings in list inputs are skipped instead of returning an error. Applies to `semvers_list`, `sort`, and `pick`. Skipped tags are logged at INFO level when `TF_LOG` is enabled. Defaults to `false`.",
+				Description:         "When true, invalid semver strings in list inputs are skipped instead of returning an error. Applies to the `semvers_list` data source only.",
+				MarkdownDescription: "When true, invalid semver strings in list inputs are skipped instead of returning an error. Applies to the `semvers_list` data source only; provider functions cannot read provider configuration, so pass `ignore_invalid` to `sort` / `pick` instead. Skipped tags are logged at INFO level when `TF_LOG` is enabled. Defaults to `false`.",
 			},
 		},
 	}
@@ -93,12 +85,8 @@ func (p *semversProvider) Configure(ctx context.Context, req provider.ConfigureR
 
 func (p *semversProvider) Functions(_ context.Context) []func() function.Function {
 	return []func() function.Function{
-		func() function.Function {
-			return &SemversSortFunction{provider: p}
-		},
-		func() function.Function {
-			return &SemversPickFunction{provider: p}
-		},
+		NewSemversSortFunction,
+		NewSemversPickFunction,
 		NewSemversCompareFunction,
 		NewSemversEqualsFunction,
 		NewSemversConstrainedFunction,

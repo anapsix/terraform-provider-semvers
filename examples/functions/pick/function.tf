@@ -39,3 +39,8 @@ output "semvers_list_picked" {
     },
   ]
 }
+
+# skip strings that are not valid semvers
+output "semvers_list_picked_ignore_invalid" {
+  value = provider::semvers::pick(concat(local.versions, ["develop-latest"]), "~> 0.2", true)
+}

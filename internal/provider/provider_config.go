@@ -5,7 +5,7 @@ package provider
 
 import "github.com/hashicorp/terraform-plugin-framework/types"
 
-// ProviderConfig holds provider-wide settings shared with data sources and functions.
+// ProviderConfig holds provider-wide settings shared with data sources.
 type ProviderConfig struct {
 	IgnoreInvalidTags bool
 }

@@ -1,4 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
 // Copyright (c) Anastas Dancha
 // SPDX-License-Identifier: MPL-2.0
 
@@ -97,7 +96,7 @@ func TestSemversPickFunction_InvalidTagsStrictDefault(t *testing.T) {
 				Config: `output "results" {
           value = provider::semvers::pick(["develop-latest", "0.2.1"], "~> 0.2")
         }`,
-				ExpectError: regexp.MustCompile(`(?i)invalid semantic version`),
+				ExpectError: regexp.MustCompile(`"versions"\s+parameter:\s+invalid\s+version\s+"develop-latest"`),
 			},
 		},
 	})
@@ -110,13 +109,14 @@ func TestSemversPickFunction_InvalidTagsIgnored(t *testing.T) {
 		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
 			tfversion.SkipBelow(tfversion.Version1_8_0),
 		},
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactoriesIgnoreInvalidTags(true),
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: `output "semvers_filtered" {
           value = provider::semvers::pick(
             ["develop-latest", "1.2.3-dev.1", "1.2.3-dev.2", "0.1.0"],
-            "~> 1.2.3-dev"
+            "~> 1.2.3-dev",
+            true
           )
         }`,
 				ConfigStateChecks: []statecheck.StateCheck{
@@ -131,7 +131,7 @@ func TestSemversPickFunction_InvalidTagsIgnored(t *testing.T) {
 			},
 			{
 				Config: `output "semvers_filtered" {
-          value = provider::semvers::pick(["develop-latest", "not-a-version"], ">= 1.0")
+          value = provider::semvers::pick(["develop-latest", "not-a-version"], ">= 1.0", true)
         }`,
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownOutputValue(
@@ -139,6 +139,43 @@ func TestSemversPickFunction_InvalidTagsIgnored(t *testing.T) {
 						knownvalue.ListSizeExact(0),
 					),
 				},
+			},
+			{
+				Config: `output "semvers_filtered" {
+          value = provider::semvers::pick(["develop-latest", "0.2.1"], "~> 0.2", false)
+        }`,
+				ExpectError: regexp.MustCompile(`(?i)invalid semantic version`),
+			},
+			{
+				Config: `output "semvers_filtered" {
+          value = provider::semvers::pick(["0.2.1"], "~> 0.2", true, true)
+        }`,
+				ExpectError: regexp.MustCompile(`accepts at most`),
+			},
+		},
+	})
+}
+
+// Provider-defined functions never receive provider configuration, so the provider
+// `ignore_invalid_tags` setting must not change function behavior.
+func TestSemversPickFunction_ProviderConfigNotApplied(t *testing.T) {
+	t.Parallel()
+
+	resource.UnitTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_8_0),
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `provider "semvers" {
+          ignore_invalid_tags = true
+        }
+
+        output "results" {
+          value = provider::semvers::pick(["develop-latest", "0.2.1"], "~> 0.2")
+        }`,
+				ExpectError: regexp.MustCompile(`(?i)invalid semantic version`),
 			},
 		},
 	})
@@ -163,7 +200,7 @@ func TestSemversPickFunction_Invalid(t *testing.T) {
 				Config: `output "results" {
           value = provider::semvers::pick(["0.1.0", "0.1.1"], "~~> 0.2")
         }`,
-				ExpectError: regexp.MustCompile(`improper constraint`),
+				ExpectError: regexp.MustCompile(`"constraint"\s+parameter:\s+invalid\s+constraint\s+"~~> 0.2"`),
 			},
 			{
 				Config: `output "results" {
@@ -175,7 +212,7 @@ func TestSemversPickFunction_Invalid(t *testing.T) {
 				Config: `output "results" {
           value = provider::semvers::pick(["0.1.0", "0.1.1"], true)
         }`,
-				ExpectError: regexp.MustCompile(`improper constraint`),
+				ExpectError: regexp.MustCompile(`improper\s+constraint`),
 			},
 			{
 				Config: `output "results" {

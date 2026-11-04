@@ -1,10 +1,10 @@
-// Copyright (c) HashiCorp, Inc.
 // Copyright (c) Anastas Dancha
 // SPDX-License-Identifier: MPL-2.0
 
 package provider
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
@@ -43,6 +43,44 @@ func TestAccDataSource(t *testing.T) {
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue("data.semvers_list.dedup", tfjsonpath.New("sorted_versions"), knownvalue.ListSizeExact(1)),
 				},
+			},
+		},
+	})
+}
+
+func TestAccDataSource_IgnoreInvalidTags(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `data "semvers_list" "strict" {
+            list = ["develop-latest", "0.1.0"]
+        }`,
+				ExpectError: regexp.MustCompile(`Error parsing semver list`),
+			},
+			{
+				Config: `provider "semvers" {
+            ignore_invalid_tags = true
+        }
+
+        data "semvers_list" "lenient" {
+            list = ["develop-latest", "0.2.0", "0.1.0"]
+        }`,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue("data.semvers_list.lenient", tfjsonpath.New("sorted_versions"), knownvalue.ListSizeExact(2)),
+					statecheck.ExpectKnownValue("data.semvers_list.lenient", tfjsonpath.New("last").AtMapKey("version"), knownvalue.StringExact("0.2.0")),
+				},
+			},
+			{
+				Config: `provider "semvers" {
+            ignore_invalid_tags = true
+        }
+
+        data "semvers_list" "none_valid" {
+            list = ["develop-latest", "not-a-version"]
+        }`,
+				ExpectError: regexp.MustCompile(`No valid semver strings`),
 			},
 		},
 	})

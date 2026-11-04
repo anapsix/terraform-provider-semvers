@@ -1,4 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
 // Copyright (c) Anastas Dancha
 // SPDX-License-Identifier: MPL-2.0
 
@@ -80,13 +79,13 @@ func TestSemversCompareFunction_Invalid(t *testing.T) {
 				Config: `output "results" {
           value = provider::semvers::compare("blah", "0.1.0")
         }`,
-				ExpectError: regexp.MustCompile(`(?i)invalid semantic version`),
+				ExpectError: regexp.MustCompile(`"version_a"\s+parameter:\s+invalid\s+version\s+"blah"`),
 			},
 			{
 				Config: `output "results" {
           value = provider::semvers::compare("0.1.0", "blah")
         }`,
-				ExpectError: regexp.MustCompile(`(?i)invalid semantic version`),
+				ExpectError: regexp.MustCompile(`"version_b"\s+parameter:\s+invalid\s+version\s+"blah"`),
 			},
 		},
 	})

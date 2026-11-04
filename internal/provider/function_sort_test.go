@@ -1,4 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
 // Copyright (c) Anastas Dancha
 // SPDX-License-Identifier: MPL-2.0
 
@@ -85,7 +84,7 @@ func TestSemversSortFunction_Invalid(t *testing.T) {
 				Config: `output "results" {
           value = provider::semvers::sort(["0.1.0", "blah"])
         }`,
-				ExpectError: regexp.MustCompile(`(?i)invalid semantic version`),
+				ExpectError: regexp.MustCompile(`"versions"\s+parameter:\s+invalid\s+version\s+"blah"`),
 			},
 			{
 				Config: `output "results" {
@@ -116,11 +115,11 @@ func TestSemversSortFunction_InvalidTagsIgnored(t *testing.T) {
 		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
 			tfversion.SkipBelow(tfversion.Version1_8_0),
 		},
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactoriesIgnoreInvalidTags(true),
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: `output "results" {
-          value = provider::semvers::sort(["develop-latest", "0.2.1", "0.1.0"])
+          value = provider::semvers::sort(["develop-latest", "0.2.1", "0.1.0"], true)
         }`,
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownOutputValue(
@@ -131,6 +130,18 @@ func TestSemversSortFunction_InvalidTagsIgnored(t *testing.T) {
 						}),
 					),
 				},
+			},
+			{
+				Config: `output "results" {
+          value = provider::semvers::sort(["develop-latest", "0.2.1"], false)
+        }`,
+				ExpectError: regexp.MustCompile(`(?i)invalid semantic version`),
+			},
+			{
+				Config: `output "results" {
+          value = provider::semvers::sort(["0.2.1"], true, false)
+        }`,
+				ExpectError: regexp.MustCompile(`accepts at most`),
 			},
 		},
 	})

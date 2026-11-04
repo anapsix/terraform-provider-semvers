@@ -1,4 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
 // Copyright (c) Anastas Dancha
 // SPDX-License-Identifier: MPL-2.0
 
@@ -79,7 +78,13 @@ func TestSemversConstrainedFunction_Invalid(t *testing.T) {
 				Config: `output "results_one" {
           value = provider::semvers::constrained("0.1.1", "blah")
         }`,
-				ExpectError: regexp.MustCompile(`improper constraint`),
+				ExpectError: regexp.MustCompile(`(?s)"constraint"\s+parameter:\s+invalid\s+constraint\s+"blah".*improper\s+constraint`),
+			},
+			{
+				Config: `output "results_one" {
+          value = provider::semvers::constrained("blah", ">= 0.1")
+        }`,
+				ExpectError: regexp.MustCompile(`"version"\s+parameter:\s+invalid\s+version\s+"blah"`),
 			},
 		},
 	})

@@ -3,12 +3,12 @@
 page_title: "constrained function - semvers"
 subcategory: ""
 description: |-
-  Checks whether semver is within constrain, returns a boolean
+  Checks whether semver is within constraint, returns a boolean
 ---
 
 # function: constrained
 
-Checks whether semver is within constrain, returns a boolean
+Checks whether semver is within constraint, returns a boolean
 
 ## Example Usage
 

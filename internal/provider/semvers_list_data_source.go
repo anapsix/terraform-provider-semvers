@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	shelper "github.com/anapsix/terraform-provider-semvers/internal/helpers"
+	"github.com/anapsix/terraform-provider-semvers/internal/semverutil"
 )
 
 // Data Source definition
@@ -111,7 +111,7 @@ func (d *semversListDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	// Parse and sort the semver strings
 	semverStrings := convertTerraformListToStringSlice(model.List)
-	semvers, err := shelper.StringsToSemvers(ctx, semverStrings, d.ignoreInvalidTags)
+	semvers, err := semverutil.StringsToSemvers(ctx, semverStrings, d.ignoreInvalidTags)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error parsing semver list",
