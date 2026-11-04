@@ -19,7 +19,7 @@
 - Internal cleanup: package rename, naming, tests use real `provider` blocks ([#3])
 - Constraint errors no longer repeat the constraint ([#4])
 - Internal cleanup: argument parsing, `semverutil` helpers, CI ([#4])
-- Pin all GitHub Actions to commit SHAs ([#4])
+- Pin all GitHub Actions to commit SHAs, kept up to date by Dependabot ([#4])
 
 ### Documentation
 - Document lenient version parsing and the new `ignore_invalid` argument ([#3])

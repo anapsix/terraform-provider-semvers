@@ -1,0 +1,13 @@
+version: 2
+updates:
+- package-ecosystem: github-actions
+  directory: /
+  schedule:
+    interval: weekly
+  # one PR for all action bumps; pinned SHAs and their version comments are updated together
+  groups:
+    github-actions:
+      patterns:
+      - '*'
+  commit-message:
+    prefix: '[chore]'

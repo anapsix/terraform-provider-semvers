@@ -92,7 +92,7 @@ Update `CHANGELOG.md` in the same PR for every user-visible change (behavior, sc
 - Branch from `main` (`fix/...`, `feat/...`, `chore/...`). Never commit directly to `main`; the only exception is the `version X.Y.Z` release commit (see [Releases](#releases)).
 - PR description: a summary of user-visible changes, a **Breaking change** section when relevant, and a test plan checklist. Note when a PR depends on another one, unless the PRs are in a GitHub stack, which already shows the dependency.
 - CI (`.github/workflows/test.yaml`) must pass: build, lint, generate drift check, and acceptance tests on Terraform 1.8, 1.12 and the latest minor.
-- Pin GitHub Actions by full commit SHA with the version in a trailing comment (`uses: actions/checkout@<sha> # v7.0.1`).
+- Pin GitHub Actions by full commit SHA with the version in a trailing comment (`uses: actions/checkout@<sha> # v7.0.1`). Dependabot (`.github/dependabot.yml`) opens a weekly grouped PR that bumps the SHAs and comments.
 - Changing `.github/workflows/` over HTTPS requires a GitHub token with the `workflow` scope.
 
 ## Releases
