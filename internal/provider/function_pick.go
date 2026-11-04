@@ -48,7 +48,7 @@ func (r *SemversPickFunction) Definition(_ context.Context, _ function.Definitio
 }
 
 func (r *SemversPickFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
-	var versions []string
+	var versions []types.String
 	var constraint string
 	var opts []bool
 
@@ -63,7 +63,7 @@ func (r *SemversPickFunction) Run(ctx context.Context, req function.RunRequest, 
 		return
 	}
 
-	filtered, err := semverutil.PickFromSemverStrings(ctx, versions, constraint, ignoreInvalidTags)
+	filtered, err := semverutil.PickFromSemverStrings(ctx, versionStrings(versions), constraint, ignoreInvalidTags)
 
 	if err != nil {
 		resp.Error = function.NewArgumentFuncError(errorPosition(err, 0, 1), err.Error())

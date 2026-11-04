@@ -146,3 +146,70 @@ func TestSemversSortFunction_InvalidTagsIgnored(t *testing.T) {
 		},
 	})
 }
+
+// Null list elements are invalid versions: an error by default, skipped with ignore_invalid.
+func TestSemversSortFunction_NullElement(t *testing.T) {
+	t.Parallel()
+
+	resource.UnitTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_8_0),
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `output "results" {
+          value = provider::semvers::sort(["0.2.1", null, "0.1.0"])
+        }`,
+				ExpectError: regexp.MustCompile(`"versions"\s+parameter:\s+invalid\s+version\s+""`),
+			},
+			{
+				Config: `output "results" {
+          value = provider::semvers::sort(["0.2.1", null, "0.1.0"], true)
+        }`,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownOutputValue(
+						"results",
+						knownvalue.ListExact([]knownvalue.Check{
+							knownvalue.StringExact("0.1.0"),
+							knownvalue.StringExact("0.2.1"),
+						}),
+					),
+				},
+			},
+		},
+	})
+}
+
+// Terraform does not call functions while a list element is unknown; the result
+// is resolved at apply time.
+func TestSemversSortFunction_UnknownElement(t *testing.T) {
+	t.Parallel()
+
+	resource.UnitTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_8_0),
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `resource "terraform_data" "v" {
+          input = "0.3.0"
+        }
+
+        output "results" {
+          value = provider::semvers::sort(["0.3.0-rc1", terraform_data.v.output])
+        }`,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownOutputValue(
+						"results",
+						knownvalue.ListExact([]knownvalue.Check{
+							knownvalue.StringExact("0.3.0-rc1"),
+							knownvalue.StringExact("0.3.0"),
+						}),
+					),
+				},
+			},
+		},
+	})
+}

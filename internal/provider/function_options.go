@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/function"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // ignoreInvalidParameter is the optional trailing argument accepted by list functions.
@@ -28,4 +29,15 @@ func ignoreInvalidFromArgs(opts []bool, argPos int) (bool, *function.FuncError) 
 	default:
 		return false, function.NewArgumentFuncError(int64(argPos), fmt.Sprintf("ignore_invalid accepts at most one value, got %d", len(opts)))
 	}
+}
+
+// versionStrings converts list function arguments to strings. Null elements become
+// empty strings, which fail parsing like any other invalid version, matching the
+// semvers_list data source.
+func versionStrings(values []types.String) []string {
+	result := make([]string, len(values))
+	for i, v := range values {
+		result[i] = v.ValueString()
+	}
+	return result
 }

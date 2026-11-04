@@ -235,3 +235,36 @@ func TestSemversPickFunction_Invalid(t *testing.T) {
 		},
 	})
 }
+
+// Null list elements are invalid versions: an error by default, skipped with ignore_invalid.
+func TestSemversPickFunction_NullElement(t *testing.T) {
+	t.Parallel()
+
+	resource.UnitTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_8_0),
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `output "results" {
+          value = provider::semvers::pick(["0.2.1", null, "0.1.0"], ">= 0.2")
+        }`,
+				ExpectError: regexp.MustCompile(`"versions"\s+parameter:\s+invalid\s+version\s+""`),
+			},
+			{
+				Config: `output "results" {
+          value = provider::semvers::pick(["0.2.1", null, "0.1.0"], ">= 0.2", true)
+        }`,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownOutputValue(
+						"results",
+						knownvalue.ListExact([]knownvalue.Check{
+							knownvalue.StringExact("0.2.1"),
+						}),
+					),
+				},
+			},
+		},
+	})
+}

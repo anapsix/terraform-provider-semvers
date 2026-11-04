@@ -44,7 +44,7 @@ func (r *SemversSortFunction) Definition(_ context.Context, _ function.Definitio
 }
 
 func (r *SemversSortFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
-	var versions []string
+	var versions []types.String
 	var opts []bool
 
 	resp.Error = function.ConcatFuncErrors(req.Arguments.Get(ctx, &versions, &opts))
@@ -58,7 +58,7 @@ func (r *SemversSortFunction) Run(ctx context.Context, req function.RunRequest, 
 		return
 	}
 
-	semvers, err := semverutil.StringsToStrings(ctx, versions, ignoreInvalidTags)
+	semvers, err := semverutil.StringsToStrings(ctx, versionStrings(versions), ignoreInvalidTags)
 
 	if err != nil {
 		resp.Error = function.NewArgumentFuncError(0, err.Error())
