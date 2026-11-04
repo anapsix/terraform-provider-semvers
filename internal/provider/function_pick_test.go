@@ -159,6 +159,26 @@ func TestSemversPickFunction_InvalidTagsIgnored(t *testing.T) {
 
 // Provider-defined functions never receive provider configuration, so the provider
 // `ignore_invalid_tags` setting must not change function behavior.
+// ignore_invalid must not be null; see ignoreInvalidParameter.
+func TestSemversPickFunction_IgnoreInvalidNull(t *testing.T) {
+	t.Parallel()
+
+	resource.UnitTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_8_0),
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `output "results" {
+          value = provider::semvers::pick(["0.2.1", "0.1.0"], ">= 0.1.0", null)
+        }`,
+				ExpectError: regexp.MustCompile(`"ignore_invalid"\s+parameter:\s+argument\s+must\s+not\s+be\s+null`),
+			},
+		},
+	})
+}
+
 func TestSemversPickFunction_ProviderConfigNotApplied(t *testing.T) {
 	t.Parallel()
 

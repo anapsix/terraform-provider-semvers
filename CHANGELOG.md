@@ -10,7 +10,7 @@
 ### Fixed
 - `sort` and `pick` failing with an internal error on `null` list elements ([#3])
 - `semvers_list` failing plan with a misleading parse error when `ignore_invalid_tags` is not known until apply; it now explains the cause ([#3])
-- Duplicate versions now keep the first occurrence from the input ([#3])
+- `semvers_list` keeps the first occurrence of duplicate versions in `original` ([#3])
 - `compare` docs no longer mention a `99` error value ([#3])
 
 ### Changed

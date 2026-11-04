@@ -59,7 +59,7 @@ func (d *semversListDataSource) Metadata(ctx context.Context, req datasource.Met
 
 func (d *semversListDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Parses and sorts a list of semver strings.",
+		Description: "Parses, sorts and deduplicates a list of semver strings. Invalid strings cause an error, unless the provider sets `ignore_invalid_tags = true`, which skips them.",
 		Attributes: map[string]schema.Attribute{
 			"list": schema.ListAttribute{
 				Description: "Original list of semver strings.",

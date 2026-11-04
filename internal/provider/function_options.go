@@ -16,6 +16,9 @@ import (
 var ignoreInvalidParameter = function.BoolParameter{
 	Name:                "ignore_invalid",
 	MarkdownDescription: "Optional. When `true`, invalid semver strings in the list are skipped instead of returning an error. Skipped strings are logged at INFO level when `TF_LOG` is enabled. Defaults to `false`.",
+	// null stays rejected: OpenTofu (1.13) sends a null variadic argument as an empty
+	// value that the framework cannot decode, turning a clear error into an internal one.
+	// Callers passing an optional variable can use coalesce(var.x, false).
 }
 
 // ignoreInvalidFromArgs resolves the variadic `ignore_invalid` argument, which must be

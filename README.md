@@ -9,7 +9,7 @@ provider functions (TF >= 1.8 is required):
 - `provider::semvers::pick`: filters a list of semver strings by constraint
 - `provider::semvers::sort`: sorts a list of semver strings, returns sorted one
 
-Version strings are parsed leniently: a leading `v` and missing minor or patch parts are accepted, so `v1.2` is read as `1.2.0`. Build metadata is ignored when comparing, and duplicates (e.g. `v1.0.0` and `1.0.0`) collapse to the first occurrence in the input list.
+Version strings are parsed leniently: a leading `v` and missing minor or patch parts are accepted, so `v1.2` is read as `1.2.0`. Build metadata is ignored when comparing. `sort` and `pick` return normalized versions (`"1.0.0"`, not `"v1.0.0"`) and drop duplicates (e.g. `v1.0.0` and `1.0.0`); `semvers_list` keeps the first occurrence's input string in `original`.
 
 See the [Terraform Registry provider page][1].
 

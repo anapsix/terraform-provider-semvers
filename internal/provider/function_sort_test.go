@@ -148,6 +148,26 @@ func TestSemversSortFunction_InvalidTagsIgnored(t *testing.T) {
 	})
 }
 
+// ignore_invalid must not be null; see ignoreInvalidParameter.
+func TestSemversSortFunction_IgnoreInvalidNull(t *testing.T) {
+	t.Parallel()
+
+	resource.UnitTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_8_0),
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `output "results" {
+          value = provider::semvers::sort(["0.2.1", "0.1.0"], null)
+        }`,
+				ExpectError: regexp.MustCompile(`"ignore_invalid"\s+parameter:\s+argument\s+must\s+not\s+be\s+null`),
+			},
+		},
+	})
+}
+
 // Null list elements are invalid versions: an error by default, skipped with ignore_invalid.
 func TestSemversSortFunction_NullElement(t *testing.T) {
 	t.Parallel()
