@@ -1,9 +1,16 @@
+// Copyright (c) Anastas Dancha
+// SPDX-License-Identifier: MPL-2.0
+
+// Package semverutil wraps github.com/Masterminds/semver/v3 with the parsing,
+// sorting and filtering used by the provider's data source and functions.
 package semverutil
 
 import (
 	"context"
 	"fmt"
 	"sort"
+	"strconv"
+	"strings"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -30,7 +37,13 @@ type InvalidConstraintError struct {
 }
 
 func (e *InvalidConstraintError) Error() string {
-	return fmt.Sprintf("invalid constraint %q: %s", e.Constraint, e.Err)
+	// The underlying error usually quotes the offending part of the constraint;
+	// only add the full constraint when it would not be repeated.
+	msg := e.Err.Error()
+	if strings.Contains(msg, strconv.Quote(e.Constraint)) {
+		return msg
+	}
+	return fmt.Sprintf("invalid constraint %q: %s", e.Constraint, msg)
 }
 
 func (e *InvalidConstraintError) Unwrap() error {
@@ -38,6 +51,7 @@ func (e *InvalidConstraintError) Unwrap() error {
 }
 
 // ParseVersion parses s as a semver, returning an *InvalidVersionError on failure.
+// Parsing is lenient: a leading "v" and missing minor or patch parts are accepted.
 func ParseVersion(s string) (*semver.Version, error) {
 	v, err := semver.NewVersion(s)
 	if err != nil {
@@ -56,7 +70,9 @@ func ParseConstraint(s string) (*semver.Constraints, error) {
 	return c, nil
 }
 
-// RemoveDups removes duplicate versions from a list of semver.Version pointers
+// RemoveDups removes duplicate versions from a list of semver.Version pointers.
+// Versions are duplicates when their normalized strings match, so build metadata
+// counts: "1.0.0+a" and "1.0.0+b" are both kept.
 func RemoveDups(list []*semver.Version) []*semver.Version {
 	seen := make(map[string]struct{})
 	var result []*semver.Version
@@ -124,6 +140,8 @@ func StringsToStrings(ctx context.Context, list []string, ignoreInvalid bool) ([
 	return SemversToStrings(semvers), nil
 }
 
+// PickFromSemverStrings returns the sorted, deduplicated versions from list that
+// satisfy c. The result is never nil.
 func PickFromSemverStrings(ctx context.Context, list []string, c *semver.Constraints, ignoreInvalid bool) ([]string, error) {
 	semvers, err := StringsToSemvers(ctx, list, ignoreInvalid)
 	if err != nil {

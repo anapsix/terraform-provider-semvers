@@ -26,14 +26,12 @@ func New(version string) func() provider.Provider {
 	return func() provider.Provider {
 		return &semversProvider{
 			version: version,
-			config:  &ProviderConfig{},
 		}
 	}
 }
 
 type semversProvider struct {
 	version string
-	config  *ProviderConfig
 }
 
 func (p *semversProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -74,12 +72,10 @@ func (p *semversProvider) Configure(ctx context.Context, req provider.ConfigureR
 		return
 	}
 
-	p.config = &ProviderConfig{
+	resp.DataSourceData = &ProviderConfig{
 		IgnoreInvalidTags:        config.IgnoreInvalidTags.ValueBool(),
 		IgnoreInvalidTagsUnknown: config.IgnoreInvalidTags.IsUnknown(),
 	}
-
-	resp.DataSourceData = p.config
 }
 
 func (p *semversProvider) Functions(_ context.Context) []func() function.Function {

@@ -79,7 +79,7 @@ func TestSemversConstrainedFunction_Invalid(t *testing.T) {
 				Config: `output "results_one" {
           value = provider::semvers::constrained("0.1.1", "blah")
         }`,
-				ExpectError: regexp.MustCompile(`(?s)"constraint"\s+parameter:\s+invalid\s+constraint\s+"blah".*improper\s+constraint`),
+				ExpectError: regexp.MustCompile(`"constraint"\s+parameter:\s+improper\s+constraint:\s+"blah"`),
 			},
 			{
 				Config: `output "results_one" {

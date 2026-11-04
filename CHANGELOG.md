@@ -17,11 +17,16 @@
 - Function errors name the offending argument and value ([#3])
 - `-debug` mode uses the `registry.terraform.io/anapsix/semvers` address ([#3])
 - Internal cleanup: package rename, naming, tests use real `provider` blocks ([#3])
+- Constraint errors no longer repeat the constraint ([#4])
+- Internal cleanup: argument parsing, `semverutil` helpers, CI ([#4])
 
 ### Documentation
 - Document lenient version parsing and the new `ignore_invalid` argument ([#3])
+- Add `AGENTS.md` with contributor and release instructions ([#4])
+- README: clarify deduplication of build metadata, safer `pick` example ([#4])
 
 [#3]: https://github.com/anapsix/terraform-provider-semvers/pull/3
+[#4]: https://github.com/anapsix/terraform-provider-semvers/pull/4
 
 ## 0.8.1
 

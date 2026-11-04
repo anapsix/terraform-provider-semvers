@@ -1,3 +1,6 @@
+// Copyright (c) Anastas Dancha
+// SPDX-License-Identifier: MPL-2.0
+
 package semverutil
 
 import (
@@ -85,5 +88,43 @@ func TestStringsToSemvers_keepsFirstDuplicate(t *testing.T) {
 		if v.Original() != want[v.String()] {
 			t.Errorf("version %s kept original %q, want %q", v, v.Original(), want[v.String()])
 		}
+	}
+}
+
+func TestInvalidConstraintError_message(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		constraint string
+		want       string
+	}{
+		// the underlying error already quotes the whole constraint
+		{constraint: "~~> 0.2", want: `improper constraint: "~~> 0.2"`},
+		// the underlying error quotes only the offending part
+		{constraint: "1.0 || ~~1", want: `invalid constraint "1.0 || ~~1": improper constraint: " ~~1"`},
+	}
+	for _, tt := range tests {
+		_, err := ParseConstraint(tt.constraint)
+		if err == nil {
+			t.Fatalf("ParseConstraint(%q): expected error", tt.constraint)
+		}
+		if err.Error() != tt.want {
+			t.Errorf("ParseConstraint(%q) error = %q, want %q", tt.constraint, err.Error(), tt.want)
+		}
+	}
+}
+
+// Versions differing only in build metadata compare equal but are not duplicates.
+func TestStringsToStrings_keepsBuildMetadataVariants(t *testing.T) {
+	t.Parallel()
+
+	got, err := StringsToStrings(context.Background(), []string{"1.0.0+b", "v1.0.0+a", "1.0.0+b"}, false)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	want := []string{"1.0.0+b", "1.0.0+a"}
+	if len(got) != len(want) || got[0] != want[0] || got[1] != want[1] {
+		t.Fatalf("got %v, want %v", got, want)
 	}
 }

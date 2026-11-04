@@ -221,7 +221,7 @@ func TestSemversPickFunction_Invalid(t *testing.T) {
 				Config: `output "results" {
           value = provider::semvers::pick(["0.1.0", "0.1.1"], "~~> 0.2")
         }`,
-				ExpectError: regexp.MustCompile(`"constraint"\s+parameter:\s+invalid\s+constraint\s+"~~> 0.2"`),
+				ExpectError: regexp.MustCompile(`"constraint"\s+parameter:\s+improper\s+constraint:\s+"~~> 0.2"`),
 			},
 			{
 				Config: `output "results" {
