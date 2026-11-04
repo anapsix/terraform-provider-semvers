@@ -45,6 +45,12 @@ go generate ./...               # format examples/ and test/, regenerate docs/
 - **Run `go generate ./...` after changing any schema, description, parameter or example, and commit the result.** CI fails when generated files are out of date.
 - Versions pinned in more than one place must be bumped together: golangci-lint (`.pre-commit-config.yaml` and the `lint` job), and the Terraform version of the `generate` job, which must match the newest version in the `test` matrix. Run it with the Go version from `go.mod` (e.g. `GOTOOLCHAIN=go1.26.10 golangci-lint run ./...`). Older golangci-lint builds fail with `export data version ... is greater than maximum supported version` under a newer local Go.
 - Manual testing: `go install`, add a `dev_overrides` block for `anapsix-dev/semvers` pointing at `~/go/bin` (see the comment at the top of `test/main.tf`), then `cd test && terraform plan`. Check with both `terraform` and `tofu` when changing function or provider-config behavior.
+- Dependabot locally: to see which GitHub Action updates Dependabot would propose, without waiting for the weekly run, use the [Dependabot CLI](https://github.com/dependabot/cli) (`brew install dependabot`; it is not a `gh` extension). It needs a running Docker daemon.
+  ```sh
+  LOCAL_GITHUB_ACCESS_TOKEN=$(gh auth token) \
+    dependabot update github_actions anapsix/terraform-provider-semvers --local .
+  ```
+  It prints the proposed changes in its log and does not modify files or open PRs, so apply the new SHAs and version comments yourself. It ignores the `groups` setting and proposes one update per action. With Docker Desktop, if `docker` is not on `PATH`, set `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock`.
 
 ## Code conventions
 
