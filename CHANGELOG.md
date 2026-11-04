@@ -16,7 +16,7 @@
 ### Changed
 - Function errors name the offending argument and value ([#3])
 - `-debug` mode uses the `registry.terraform.io/anapsix/semvers` address ([#3])
-- Internal cleanup: package rename, naming, license headers, tests use real `provider` blocks ([#3])
+- Internal cleanup: package rename, naming, tests use real `provider` blocks ([#3])
 
 ### Documentation
 - Document lenient version parsing and the new `ignore_invalid` argument ([#3])
