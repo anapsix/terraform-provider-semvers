@@ -1,7 +1,17 @@
 ## Unreleased
 
+## 0.8.1
+
 ### Changed
 - Migrate `.goreleaser.yaml` from deprecated `archives.format` to `formats`
+- Bump Go directive 1.25.8 -> 1.26.0 (required by updated dependencies)
+- Upgrade terraform-plugin-docs v0.19.4 -> v0.25.0
+- Upgrade terraform-plugin-log v0.10.0 -> v0.11.0
+- Upgrade terraform-plugin-testing v1.10.0 -> v1.16.0
+- Update indirect dependencies (`golang.org/x/*`, grpc, protobuf, and others)
+
+### Documentation
+- Regenerate docs with terraform-plugin-docs v0.25.0
 
 ## 0.8.0
 
